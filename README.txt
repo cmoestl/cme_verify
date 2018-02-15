@@ -1,1 +1,0 @@
-README for cme_verify_v1.py
