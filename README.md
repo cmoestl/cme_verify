@@ -39,8 +39,3 @@ https://seaborn.pydata.org/installing.html
       
       $ run cme_verify_v1.py
   
-* ... 
-* ...
-
-
-
