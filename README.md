@@ -2,12 +2,12 @@
 
 This code is concerned with forecast verification of solar storms. It is currently (February 2018) work in progress.
 
-It is distribued with an MIT license.
+It is distributed with an MIT license.
 
 If this code is used for peer-reviewed scientific publications, the paper below needs to cited and in any case, please also contact me on twitter https://twitter.com/chrisoutofspace or at christian.moestl@oeaw.ac.at.
 
 This code was used for producing the figures and results in the publication:
-Möstl et al. (2017) https://arxiv.org/abs/1703.00705
+Möstl et al. (2017) https://arxiv.org/abs/1703.00705 
 http://cdsads.u-strasbg.fr/abs/2017SpWea..15..955M
 
 ## Dependencies
