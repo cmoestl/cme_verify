@@ -1,4 +1,4 @@
-# 3DCORE
+# cme_verify
 
 This code is concerned with forecast verification of solar storms. It is currently (February 2018) work in progress.
 
