@@ -1,0 +1,42 @@
+This ARRival CATalog (ARRCAT) is a product of working packages 3 and 4 in the EU HELCATS project (2014-2017). 
+
+It lists predicted arrivals of solar coronal mass ejections at various spacecraft and planets with the STEREO heliospheric imager instruments, between April 2007 - September 2014.
+
+HEADER FILE FOR: HELCATS_ARRCAT_v6.txt, HELCATS_ARRCAT_v6.sav
+
+the .sav file can be read directly in IDL ("restore" function) and python ("scipy.io.readsav").
+ 
+AUTHORS: Christian Moestl, Peter Boakes, University of Graz, Austria; SRI, Austrian Academy of Sciences, Graz, Austria. Based on the HIGeoCAT catalog of CMEs established at RAL Space, UK (Harrison, Davies, Barnes).
+ 
+FILE CREATION DATE: Wed Sep 21 11:27:24 2016
+ 
+INPUT FILES: HCME_WP3_V03.json
+ 
+Number of events in ARRCAT: 1995
+
+Targets: EARTH-L1, STEREO-A, STEREO-B, VENUS, MESSENGER, MARS, SATURN, ULYSSES, MSL, MAVEN, ROSETTA
+
+ VARIABLES: 
+	1: ID: From HICAT, the unique identifier for the observed CME.
+	2: SC: From HICAT, the HI observing STEREO spacecraft, (A=Ahead or B=Behind)
+	3: SSE_LAUNCH: From HICAT, launch time of the CME on the Sun, unit: UTC.
+	4: TARGET_NAME: Name of in situ target.
+	5: SSE_HEEQ_LONG: From HICAT, the HEEQ longitude of the CME apex propagation direction, unit: degree.
+	6: TARGET_DELTA: Difference in HEEQ longitude between central CME direction and target location, positive values: spacecraft is west of CME apex. unit: degree.
+	7: SSE_SPEED: From HICAT, speed of CME apex, unit: km/s.
+	8: TARGET_SPEED: CME arrival speed at target location, corrected for SSE shape. unit: km/s.
+	9: TARGET_ARRIVAL: CME arrival time at target location, corrected for SSE shape. unit: UTC.
+	10: TARGET_DISTANCE: Target distance from Sun, at CME launch time. unit: AU.
+	11: TARGET_HEEQ_LAT: Target latitude in HEEQ, at CME launch time. unit: degree.
+	12: TARGET_HEEQ_LONG: Target longitude in HEEQ, at CME launch time. unit: degree.
+	13: TARGET_PA: PA of target from HI observing STEREO spacecraft, unit: degree.
+	14: PA_FIT: From HICAT, PA along which time-elongation profile is extracted, unit: degree.
+	15: PA_N: From HICAT, northern position angle of CME, unit: degree.
+	16: PA_S: From HICAT, southernmost position angle of CME, unit: degree.
+	17: PA_CENTER: average of pa_n and pa_s, unit: degree.
+
+Notes:
+
+1. We have applied the method from Möstl & Davies (2013, Solar Physics) for calculating speeds and arrival times of the CMEs modeled with SSEF30 to all CMEs in the HELCATS HIGeoCAT catalog (see website helcats-fp7.eu, and Möstl et al. 2014, ApJ, for more details). If the SSEF30 circle hits a spacecraft or planet, an entry in ARRCAT is produced.
+
+2. The position of Venus Express is assumed equal to the location of Venus. Arrivals at Ulysses are calculated only around its last ecliptic pass in August 2007. For Rosetta, no arrivals are calculated during its deep space hibernation from 2011 June 8 to 2014 January 20. For MESSENGER, MSL and MAVEN ARRCAT covers both the cruise and orbit phases of those missions. 
