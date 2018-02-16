@@ -2,7 +2,7 @@
 
 <16 February 2018: This is work in progress>
 
-This code is concerned with forecast verification of solar storms (coronal mass ejections, CMEs) and derivation of statistics of CME parameters from observations.
+This code is concerned with forecast verification of solar storms (coronal mass ejections, CMEs) and derivation of statistics of CME parameters from in situ magnetic field and plasma observations by spacecraft such as Wind, STEREO, Venus Express, MESSENGER, and MAVEN.
 
 It is distributed with an MIT license.
 
