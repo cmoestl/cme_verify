@@ -26,7 +26,6 @@ def getcat(filename):
   print('done CAT')
   return cat  
   
-  
 def decode_array(bytearrin):
  #for decoding the strings from the IDL .sav file to a list of python strings, not bytes 
  #make list of python lists with arbitrary length
