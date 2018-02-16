@@ -35,11 +35,16 @@ https://seaborn.pydata.org/installing.html
     $ conda install seaborn    
     
 
-## Running the code
+## Running the forecast verification code
 * Download the repository, start an OS X command line and go to the "cme_verify" directory
-* Start ipython and run the only code file:
+* This code has been made for CME forecast verification with an predicted arrival catalog for the years 2007-2014 in the EU funded HELCATS project. Here this verification is done for CME modeling with the SSEF30 method for heliospheric imagers.
+
+Start ipython and run the code file:
 
       $ ipython
       
       $ run cme_verify_v1.py
   
+## Running the CME statistics code
+
+      $ run cme_stats_v1.py
