@@ -119,7 +119,7 @@ i=getcat(filename_icmecat)
 
 
 #get spacecraft and planet positions
-pos=getcat('DATACAT/positions_2007_2018_HEEQ_6hours.sav')
+pos=getcat('../catpy/DATACAT/positions_2007_2018_HEEQ_6hours.sav')
 pos_time_num=time_to_num_cat(pos.time)[0]
 #---------------------------- get all parameters from ICMECAT
 
@@ -469,8 +469,8 @@ plt.figtext(0.03,0.98,'a',color='black', fontsize=fsize, ha='left',fontweight='b
 plt.figtext(0.03,0.485,'b',color='black', fontsize=fsize, ha='left',fontweight='bold')
 
 plt.show()
-plt.savefig('plots/stats/icme_durations_distance_time.pdf', dpi=300)
-plt.savefig('plots/stats/icme_durations_distance_time.png', dpi=300)
+plt.savefig('plots/icme_durations_distance_time.pdf', dpi=300)
+plt.savefig('plots/icme_durations_distance_time.png', dpi=300)
 
 
 
@@ -767,8 +767,8 @@ fsize=14
 plt.tight_layout()
 
 #plt.show()
-plt.savefig('plots/stats/icme_total_field_distance_time.pdf', dpi=300)
-plt.savefig('plots/stats/icme_total_field_distance_time.png', dpi=300)
+plt.savefig('plots/icme_total_field_distance_time.pdf', dpi=300)
+plt.savefig('plots/icme_total_field_distance_time.png', dpi=300)
 
 
 
@@ -876,10 +876,10 @@ yearly_mid_times=[mdates.date2num(sunpy.time.parse_time('2007-07-01')),
 #and use in calculation
 
 #converted times are here:
-[vex_time,wind_time,sta_time,stb_time,mav_time,mes_time]=pickle.load( open( "DATACAT/insitu_times_mdates_maven_interp.p", "rb" ) )
-sta= pickle.load( open( "DATACAT/STA_2007to2015_SCEQ.p", "rb" ) )
-stb= pickle.load( open( "DATACAT/STB_2007to2014_SCEQ.p", "rb" ) )
-wind=pickle.load( open( "DATACAT/WIND_2007to2016_HEEQ.p", "rb" ) )
+[vex_time,wind_time,sta_time,stb_time,mav_time,mes_time]=pickle.load( open( "../catpy/DATACAT/insitu_times_mdates_maven_interp.p", "rb" ) )
+sta= pickle.load( open( "../catpy/DATACAT/STA_2007to2015_SCEQ.p", "rb" ) )
+stb= pickle.load( open( "../catpy/DATACAT/STB_2007to2014_SCEQ.p", "rb" ) )
+wind=pickle.load( open( "../catpy/DATACAT/WIND_2007to2016_HEEQ.p", "rb" ) )
 
 total_data_days_sta=np.zeros(np.size(yearly_mid_times))
 total_data_days_sta.fill(np.nan)
@@ -1793,8 +1793,8 @@ plt.ylim((0,25))
 plt.tight_layout()
 
 plt.show()
-plt.savefig('plots/stats/inside.pdf', dpi=300)
-plt.savefig('plots/stats/inside.png', dpi=300)
+plt.savefig('plots/inside.pdf', dpi=300)
+plt.savefig('plots/inside.png', dpi=300)
 
 
 
@@ -1929,7 +1929,7 @@ histstb=histstb/total_data_days_stb*365
 histmav=histmav/total_data_days_mav*365
 
 binedges=bin_edgeswin
-pickle.dump([binedges,histwin,histvex,histmes,histsta,histstb,histmav], open( "plots/stats/icme_frequency.p", "wb" ), protocol=2 )
+pickle.dump([binedges,histwin,histvex,histmes,histsta,histstb,histmav], open( "plots/icme_frequency.p", "wb" ), protocol=2 )
 #[binedges,histwin,histvex,histmes,histsta,histstb,histmav]=pickle.load( open( "plots/stats/icme_frequency.p", "rb" ) )
 
 #binweite=45
@@ -1996,8 +1996,8 @@ plt.tight_layout()
 
 #sns.despine()
 plt.show()
-plt.savefig('plots/stats/frequency.pdf', dpi=300)
-plt.savefig('plots/stats/frequency.png', dpi=300)
+plt.savefig('plots/frequency.pdf', dpi=300)
+plt.savefig('plots/frequency.png', dpi=300)
 
 
 
