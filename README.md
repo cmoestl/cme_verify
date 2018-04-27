@@ -45,6 +45,12 @@ Start ipython and run the code file:
       
       $ run cme_verify_v1.py
   
-## Running the CME statistics code
+## Running the CME statistics code 
+* for the paper in preparation:
 
       $ run cme_stats_v1.py
+
+* for the poster on CME observations with the Parker Solar Probe, shown at EGU 2018
+* https://doi.org/10.6084/m9.figshare.6110636.v1
+
+      $ run cme_stats_parker.py
