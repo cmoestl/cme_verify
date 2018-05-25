@@ -86,6 +86,13 @@ def gaussian(x, amp, mu, sig):
      return amp * exp(-(x-cen)**2 /wid)
 
 
+def dynamic_pressure(density, speed):
+   ############# make dynamic pressure
+   #pdyn=np.zeros(len([density])) #in nano Pascals
+   protonmass=1.6726219*1e-27  #kg
+   #assume pdyn is only due to protons
+   pdyn=np.multiply(np.square(speed*1e3),density)*1e6*protonmass*1e9  #in nanoPascal
+   return pdyn
 
 
 
@@ -101,7 +108,7 @@ print('Start catpy main program. Analyses and plots for ICME duration and planet
 #filename_arrcat='ALLCATS/HELCATS_ARRCAT_v6.sav'
 #a=getcat(filename_arrcat)
 
-filename_icmecat='ALLCATS/HELCATS_ICMECAT_v11_SCEQ.sav'
+filename_icmecat='ALLCATS/HELCATS_ICMECAT_v20_SCEQ.sav'
 i=getcat(filename_icmecat)
 
 #filename_linkcat='ALLCATS/HELCATS_LINKCAT_v10.sav'
@@ -162,6 +169,12 @@ sheath_density=i.icmecat['SHEATH_DENSITY']
 sheath_density_std=i.icmecat['SHEATH_DENSITY_STD']
 mo_density=i.icmecat['MO_DENSITY']
 mo_density_std=i.icmecat['MO_DENSITY_STD']
+sheath_pdyn=i.icmecat['SHEATH_PDYN']
+sheath_pdyn_std=i.icmecat['SHEATH_PDYN_STD']
+mo_pdyn=i.icmecat['MO_PDYN']
+mo_pdyn_std=i.icmecat['MO_PDYN_STD']
+
+
 sheath_temperature=i.icmecat['SHEATH_TEMPERATURE']
 sheath_temperature_std=i.icmecat['SHEATH_TEMPERATURE_STD']
 mo_temperature=i.icmecat['MO_TEMPERATURE']
