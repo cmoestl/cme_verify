@@ -6,7 +6,7 @@ Alexey Isavnin, Emilia Kilpua, University of Helsinki, Finland.
 Benoit Lavraud, IRAP, Toulouse, France.
 We sincerely thank the providers of individual ICME lists: Simon Good, Reka Winslow, Lan Jian and Teresa Nieves-Chinchilla.
  
-FILE CREATION DATE: Fri May 25 15:31:21 2018
+FILE CREATION DATE: Mon May 28 12:09:36 2018
  
 INPUT FILE:/home/cmoestl/helcats/products/ICMECAT/HELCATS_ICMECAT_v20_master.txt
  
@@ -43,7 +43,7 @@ Notes:
 (8) Similarly, for MAVEN data, all data inside the bow shock were removed with the model from Edberg et al. 2008 (JGR), including one standard deviation.
     For the remaining data the median for each orbit is taken as 1 data point. 4.5 hour time resolution.
 
-updates in this version 20 compared to version 10: added MAVEN events and extended the Wind catalog to end of 2017.
+updates in this version 20 compared to version 10: added MAVEN events, extended the Wind catalog to end of 2017 and added dynamic pressure parameters.
 VARIABLES: 
  	1: ICMECAT_ID: The unique identifier for the observed ICME. unit: string.
  	2: SC_INSITU: The name of the in situ observatory. unit: string.
