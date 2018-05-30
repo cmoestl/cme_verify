@@ -1,9 +1,8 @@
 # cme_stats_v1.py
 #
-# analyses HELCATS ICMECAT data for paper on CME statistics
+# analyses HELCATS ICMECAT data for paper on CME statistics Moestl et al. 2018 tbd
 # Author: C. Moestl, Space Research Institute IWF Graz, Austria
-# started May 2015
-# last update: February 2018
+# last update: May 2018
 
 
 from scipy import stats
@@ -87,56 +86,56 @@ def gaussian(x, amp, mu, sig):
 
 
 def dynamic_pressure(density, speed):
-   ############# make dynamic pressure
+   # make dynamic pressure from density and speed
+   #assume pdyn is only due to protons
    #pdyn=np.zeros(len([density])) #in nano Pascals
    protonmass=1.6726219*1e-27  #kg
-   #assume pdyn is only due to protons
    pdyn=np.multiply(np.square(speed*1e3),density)*1e6*protonmass*1e9  #in nanoPascal
    return pdyn
 
 
 
 
-######################################################
-#main program
+#####################################################################################
+#################### main program
 
 plt.close('all')
-print('Start catpy main program. Analyses and plots for ICME duration and planetary (Mars!) impacts')
-
+print('Start cme_stats_v1.py main program. ICME parameters at all 4 planets.')
 
 #-------------------------------------------------------- get cats
-#filename_arrcat='ALLCATS/HELCATS_ARRCAT_v6.sav'
-#a=getcat(filename_arrcat)
+
+
+#solar radius
+Rs_in_AU=7e5/149.5e6
+
 
 filename_icmecat='ALLCATS/HELCATS_ICMECAT_v20_SCEQ.sav'
 i=getcat(filename_icmecat)
 
-#filename_linkcat='ALLCATS/HELCATS_LINKCAT_v10.sav'
-#l=getcat(filename_linkcat)
-
-
-#now this is a structured array  
+#now this is a scipy structured array  
 #access each element of the array see http://docs.scipy.org/doc/numpy/user/basics.rec.html
 #access variables
 #i.icmecat['id']
 #look at contained variables
-#print(a.arrcat.dtype)
 #print(i.icmecat.dtype)
 
 
 #get spacecraft and planet positions
 pos=getcat('../catpy/DATACAT/positions_2007_2018_HEEQ_6hours.sav')
 pos_time_num=time_to_num_cat(pos.time)[0]
-#---------------------------- get all parameters from ICMECAT
 
+#----------------- get all parameters from ICMECAT for easier handling
 
+#id for each event
 iid=i.icmecat['id']
 #need to decode all strings
 iid=decode_array(iid)
 
+#observing spacecraft
 isc=i.icmecat['sc_insitu'] #string
 isc=decode_array(isc)
 
+#all times need to be converted from the IDL format to matplotlib format
 icme_start_time=i.icmecat['ICME_START_TIME']
 [icme_start_time_num,icme_start_time_str]=time_to_num_cat(icme_start_time)
 
@@ -146,6 +145,7 @@ mo_start_time=i.icmecat['MO_START_TIME']
 mo_end_time=i.icmecat['MO_END_TIME']
 [mo_end_time_num,mo_end_time_str]=time_to_num_cat(mo_end_time)
 
+#this time exists only for Wind
 icme_end_time=i.icmecat['ICME_END_TIME']
 [icme_end_time_num,icme_end_time_str]=time_to_num_cat(icme_end_time)
 
@@ -169,19 +169,17 @@ sheath_density=i.icmecat['SHEATH_DENSITY']
 sheath_density_std=i.icmecat['SHEATH_DENSITY_STD']
 mo_density=i.icmecat['MO_DENSITY']
 mo_density_std=i.icmecat['MO_DENSITY_STD']
+sheath_temperature=i.icmecat['SHEATH_TEMPERATURE']
+sheath_temperature_std=i.icmecat['SHEATH_TEMPERATURE_STD']
+mo_temperature=i.icmecat['MO_TEMPERATURE']
+mo_temperature_std=i.icmecat['MO_TEMPERATURE_STD']
 sheath_pdyn=i.icmecat['SHEATH_PDYN']
 sheath_pdyn_std=i.icmecat['SHEATH_PDYN_STD']
 mo_pdyn=i.icmecat['MO_PDYN']
 mo_pdyn_std=i.icmecat['MO_PDYN_STD']
 
 
-sheath_temperature=i.icmecat['SHEATH_TEMPERATURE']
-sheath_temperature_std=i.icmecat['SHEATH_TEMPERATURE_STD']
-mo_temperature=i.icmecat['MO_TEMPERATURE']
-mo_temperature_std=i.icmecat['MO_TEMPERATURE_STD']
-
-
-#get indices of events in different spacecraft
+#get indices of events by different spacecraft
 ivexind=np.where(isc == 'VEX')
 istaind=np.where(isc == 'STEREO-A')
 istbind=np.where(isc == 'STEREO-B')
@@ -208,42 +206,38 @@ maxend=mdates.date2num(sunpy.time.parse_time('2014-12-31'))
 
 #extract events by limits of solar min, rising, max, too few events for MAVEN and Ulysses
 
+#extract events by limits of solar min, rising, max, too few events for MAVEN and Ulysses
 
-iallind_min=np.where(np.logical_and(icme_start_time_num > minstart,icme_start_time_num < minend))
-iallind_rise=np.where(np.logical_and(icme_start_time_num > risestart,icme_start_time_num < riseend))
-iallind_max=np.where(np.logical_and(icme_start_time_num > maxstart,icme_start_time_num < maxend))
+iallind_min=np.where(np.logical_and(icme_start_time_num > minstart,icme_start_time_num < minend))[0]
+iallind_rise=np.where(np.logical_and(icme_start_time_num > risestart,icme_start_time_num < riseend))[0]
+iallind_max=np.where(np.logical_and(icme_start_time_num > maxstart,icme_start_time_num < maxend))[0]
 
-iwinind_min=np.where(np.logical_and(icme_start_time_num[iwinind] > minstart,icme_start_time_num[iwinind] < minend))
-iwinind_rise=np.where(np.logical_and(icme_start_time_num[iwinind] > risestart,icme_start_time_num[iwinind] < riseend))
-iwinind_max=np.where(np.logical_and(icme_start_time_num[iwinind] > maxstart,icme_start_time_num[iwinind] < maxend))
+iwinind_min=iallind_min[np.where(isc[iallind_min]=='Wind')]
+iwinind_rise=iallind_rise[np.where(isc[iallind_rise]=='Wind')]
+iwinind_max=iallind_max[np.where(isc[iallind_max]=='Wind')]
 
-ivexind_min=np.where(np.logical_and(icme_start_time_num[ivexind] > minstart,icme_start_time_num[ivexind] < minend))
-ivexind_rise=np.where(np.logical_and(icme_start_time_num[ivexind] > risestart,icme_start_time_num[ivexind] < riseend))
-ivexind_max=np.where(np.logical_and(icme_start_time_num[ivexind] > maxstart,icme_start_time_num[ivexind] < maxend))
+ivexind_min=iallind_min[np.where(isc[iallind_min]=='VEX')]
+ivexind_rise=iallind_rise[np.where(isc[iallind_rise]=='VEX')]
+ivexind_max=iallind_max[np.where(isc[iallind_max]=='VEX')]
 
-imesind_min=np.where(np.logical_and(icme_start_time_num[imesind] > minstart,icme_start_time_num[imesind] < minend))
-imesind_rise=np.where(np.logical_and(icme_start_time_num[imesind] > risestart,icme_start_time_num[imesind] < riseend))
-imesind_max=np.where(np.logical_and(icme_start_time_num[imesind] > maxstart,icme_start_time_num[imesind] < maxend))
+imesind_min=iallind_min[np.where(isc[iallind_min]=='MESSENGER')]
+imesind_rise=iallind_rise[np.where(isc[iallind_rise]=='MESSENGER')]
+imesind_max=iallind_max[np.where(isc[iallind_max]=='MESSENGER')]
 
-imercind_min=np.where(np.logical_and(icme_start_time_num[imercind] > minstart,icme_start_time_num[imercind] < minend))
-imercind_rise=np.where(np.logical_and(icme_start_time_num[imercind] > risestart,icme_start_time_num[imercind] < riseend))
-imercind_max=np.where(np.logical_and(icme_start_time_num[imercind] > maxstart,icme_start_time_num[imercind] < maxend))
+istaind_min=iallind_min[np.where(isc[iallind_min]=='STEREO-A')]
+istaind_rise=iallind_rise[np.where(isc[iallind_rise]=='STEREO-A')]
+istaind_max=iallind_max[np.where(isc[iallind_max]=='STEREO-A')]
 
-istaind_min=np.where(np.logical_and(icme_start_time_num[istaind] > minstart,icme_start_time_num[istaind] < minend))
-istaind_rise=np.where(np.logical_and(icme_start_time_num[istaind] > risestart,icme_start_time_num[istaind] < riseend))
-istaind_max=np.where(np.logical_and(icme_start_time_num[istaind] > maxstart,icme_start_time_num[istaind] < maxend))
-
-istbind_min=np.where(np.logical_and(icme_start_time_num[istbind] > minstart,icme_start_time_num[istbind] < minend))
-istbind_rise=np.where(np.logical_and(icme_start_time_num[istbind] > risestart,icme_start_time_num[istbind] < riseend))
-istbind_max=np.where(np.logical_and(icme_start_time_num[istbind] > maxstart,icme_start_time_num[istbind] < maxend))
-
-#use these indices like  mo_bmean[imercind][imercind_rise] to get all MO_BMEAN at Mercury in the rising phase
+istbind_min=iallind_min[np.where(isc[iallind_min]=='STEREO-B')]
+istbind_rise=iallind_rise[np.where(isc[iallind_rise]=='STEREO-B')]
+istbind_max=iallind_max[np.where(isc[iallind_max]=='STEREO-B')]
 
 
+#select the events at Mercury extra after orbit insertion, no events for solar minimum!
+imercind_min=iallind_min[np.where(np.logical_and(isc[iallind_min] =='MESSENGER',icme_start_time_num[iallind_min] > mdates.date2num(sunpy.time.parse_time('2011-03-18'))))]
+imercind_rise=iallind_rise[np.where(np.logical_and(isc[iallind_rise] =='MESSENGER',icme_start_time_num[iallind_rise] > mdates.date2num(sunpy.time.parse_time('2011-03-18'))))]
+imercind_max=iallind_max[np.where(np.logical_and(isc[iallind_max] =='MESSENGER',icme_start_time_num[iallind_max] > mdates.date2num(sunpy.time.parse_time('2011-03-18'))))]
 
-
-
-Rs_in_AU=7e5/149.5e6
 
 
 
@@ -261,7 +255,7 @@ Rs_in_AU=7e5/149.5e6
 
 ###################################################################################
 
-##################### (3) DURATION PLOT and linear fit  ############################
+##################### (1) DURATION PLOT and linear fit  ############################
 
 
 
@@ -499,7 +493,7 @@ plt.savefig('plots/icme_durations_distance_time.png', dpi=300)
 
 
 
-
+sys.exit()
 
 
 
@@ -891,7 +885,7 @@ yearly_mid_times=[mdates.date2num(sunpy.time.parse_time('2007-07-01')),
 [vex_time,wind_time,sta_time,stb_time,mav_time,mes_time]=pickle.load( open( "../catpy/DATACAT/insitu_times_mdates_maven_interp.p", "rb" ) )
 sta= pickle.load( open( "../catpy/DATACAT/STA_2007to2015_SCEQ.p", "rb" ) )
 stb= pickle.load( open( "../catpy/DATACAT/STB_2007to2014_SCEQ.p", "rb" ) )
-wind=pickle.load( open( "../catpy/DATACAT/WIND_2007to2016_HEEQ.p", "rb" ) )
+wind=pickle.load( open( "../catpy/DATACAT/WIND_2007to2018_HEEQ_plasma_median21.p", "rb" ) )
 
 total_data_days_sta=np.zeros(np.size(yearly_mid_times))
 total_data_days_sta.fill(np.nan)

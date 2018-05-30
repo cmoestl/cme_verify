@@ -1,9 +1,8 @@
-# cme_stats_parker.py
+# cme_stats_v1.py
 #
-# analyses HELCATS ICMECAT data for EGU 2018 poster on CME statistics
+# analyses HELCATS ICMECAT data for paper on CME statistics Moestl et al. 2018 tbd
 # Author: C. Moestl, Space Research Institute IWF Graz, Austria
-# started May 2015
-# last update: February 2018
+# last update: May 2018
 
 
 from scipy import stats
@@ -11,7 +10,6 @@ import scipy.io
 from matplotlib import cm
 import sys
 import matplotlib
-import datetime
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import numpy as np
@@ -87,170 +85,57 @@ def gaussian(x, amp, mu, sig):
      return amp * exp(-(x-cen)**2 /wid)
 
 
-
-#define global variables from OMNI2 dataset
-#see http://omniweb.gsfc.nasa.gov/html/ow_data.html
-
-dataset=473376;
-#global Variables
-spot=np.zeros(dataset) 
-btot=np.zeros(dataset) #floating points
-bx=np.zeros(dataset) #floating points
-by=np.zeros(dataset) #floating points
-bz=np.zeros(dataset) #floating points
-bzgsm=np.zeros(dataset) #floating points
-bygsm=np.zeros(dataset) #floating points
-
-speed=np.zeros(dataset) #floating points
-speedx=np.zeros(dataset) #floating points
-speed_phi=np.zeros(dataset) #floating points
-speed_theta=np.zeros(dataset) #floating points
-
-dst=np.zeros(dataset) #float
-kp=np.zeros(dataset) #float
-
-den=np.zeros(dataset) #float
-pdyn=np.zeros(dataset) #float
-year=np.zeros(dataset)
-day=np.zeros(dataset)
-hour=np.zeros(dataset)
-t=np.zeros(dataset) #index time
-times1=np.zeros(dataset) #datetime time
-
-
-def convertomnitime():
- #http://docs.sunpy.org/en/latest/guide/time.html
- #http://matplotlib.org/examples/pylab_examples/date_demo2.html
-
- print('convert time start')
- for index in range(0,dataset):
-      #first to datetimeobject 
-      timedum=datetime.datetime(int(year[index]), 1, 1) + datetime.timedelta(day[index] - 1) +datetime.timedelta(hours=hour[index])
-      #then to matlibplot dateformat:
-      times1[index] = matplotlib.dates.date2num(timedum)
-      #print time
-      #print year[index], day[index], hour[index]
- print('convert time done')   #for time conversion
-
-
-def getomnidata():
-
- #statt NaN waere besser linear interpolieren
- #lese file ein:
- 
- #FORMAT(2I4,I3,I5,2I3,2I4,14F6.1,F9.0,F6.1,F6.0,2F6.1,F6.3,F6.2, F9.0,F6.1,F6.0,2F6.1,F6.3,2F7.2,F6.1,I3,I4,I6,I5,F10.2,5F9.2,I3,I4,2F6.1,2I6,F5.1)
- #1963   1  0 1771 99 99 999 999 999.9 999.9 999.9 999.9 999.9 999.9 999.9 999.9 999.9 999.9 999.9 999.9 999.9 999.9 9999999. 999.9 9999. 999.9 999.9 9.999 99.99 9999999. 999.9 9999. 999.9 999.9 9.999 999.99 999.99 999.9  7  23    -6  119 999999.99 99999.99 99999.99 99999.99 99999.99 99999.99  0   3 999.9 999.9 99999 99999 99.9
-
- 
- j=0
- print('start reading variables from file')
- with open('/Users/chris/python/data/omni_data/omni2_all_years.dat') as f:
-  for line in f:
-   line = line.split() # to deal with blank 
-   #print line #41 is Dst index, in nT
-   dst[j]=line[40]
-   kp[j]=line[38]
-   
-   if dst[j] == 99999: dst[j]=np.NaN
-   #40 is sunspot number
-   spot[j]=line[39]
-   #if spot[j] == 999: spot[j]=NaN
-
-   #25 is bulkspeed F6.0, in km/s
-   speed[j]=line[24]
-   if speed[j] == 9999: speed[j]=np.NaN
- 
-   #get speed angles F6.1
-   speed_phi[j]=line[25]
-   if speed_phi[j] == 999.9: speed_phi[j]=np.NaN
-
-   speed_theta[j]=line[26]
-   if speed_theta[j] == 999.9: speed_theta[j]=np.NaN
-   #convert speed to GSE x see OMNI website footnote
-   speedx[j] = - speed[j] * np.cos(np.radians(speed_theta[j])) * np.cos(np.radians(speed_phi[j]))
+def dynamic_pressure(density, speed):
+   # make dynamic pressure from density and speed
+   #assume pdyn is only due to protons
+   #pdyn=np.zeros(len([density])) #in nano Pascals
+   protonmass=1.6726219*1e-27  #kg
+   pdyn=np.multiply(np.square(speed*1e3),density)*1e6*protonmass*1e9  #in nanoPascal
+   return pdyn
 
 
 
-   #9 is total B  F6.1 also fill ist 999.9, in nT
-   btot[j]=line[9]
-   if btot[j] == 999.9: btot[j]=np.NaN
 
-   #GSE components from 13 to 15, so 12 to 14 index, in nT
-   bx[j]=line[12]
-   if bx[j] == 999.9: bx[j]=np.NaN
-   by[j]=line[13]
-   if by[j] == 999.9: by[j]=np.NaN
-   bz[j]=line[14]
-   if bz[j] == 999.9: bz[j]=np.NaN
- 
-   #GSM
-   bygsm[j]=line[15]
-   if bygsm[j] == 999.9: bygsm[j]=np.NaN
- 
-   bzgsm[j]=line[16]
-   if bzgsm[j] == 999.9: bzgsm[j]=np.NaN 	
- 
- 
-   #24 in file, index 23 proton density /ccm
-   den[j]=line[23]
-   if den[j] == 999.9: den[j]=np.NaN
- 
-   #29 in file, index 28 Pdyn, F6.2, fill values sind 99.99, in nPa
-   pdyn[j]=line[28]
-   if pdyn[j] == 99.99: pdyn[j]=np.NaN 		
- 
-   year[j]=line[0]
-   day[j]=line[1]
-   hour[j]=line[2]
-   j=j+1     
- 
- print('done reading variables from file')
- print(j, ' datapoints')   #for reading data from OMNI file
-
-
-
-######################################################
-#main program
+#####################################################################################
+#################### main program
 
 plt.close('all')
-print('Start catpy main program. Analyses and plots for ICME duration and planetary (Mars!) impacts')
-
-#getomnidata()
-#convertomnitime()
+print('Start cme_stats_v1.py main program. ICME parameters at all 4 planets.')
 
 #-------------------------------------------------------- get cats
-#filename_arrcat='ALLCATS/HELCATS_ARRCAT_v6.sav'
-#a=getcat(filename_arrcat)
 
-filename_icmecat='ALLCATS/HELCATS_ICMECAT_v11_SCEQ.sav'
+
+#solar radius
+Rs_in_AU=7e5/149.5e6
+
+
+filename_icmecat='ALLCATS/HELCATS_ICMECAT_v20_SCEQ.sav'
 i=getcat(filename_icmecat)
 
-#filename_linkcat='ALLCATS/HELCATS_LINKCAT_v10.sav'
-#l=getcat(filename_linkcat)
-
-
-#now this is a structured array  
+#now this is a scipy structured array  
 #access each element of the array see http://docs.scipy.org/doc/numpy/user/basics.rec.html
 #access variables
 #i.icmecat['id']
 #look at contained variables
-#print(a.arrcat.dtype)
 #print(i.icmecat.dtype)
 
 
 #get spacecraft and planet positions
 pos=getcat('../catpy/DATACAT/positions_2007_2018_HEEQ_6hours.sav')
 pos_time_num=time_to_num_cat(pos.time)[0]
-#---------------------------- get all parameters from ICMECAT
 
+#----------------- get all parameters from ICMECAT for easier handling
 
+#id for each event
 iid=i.icmecat['id']
 #need to decode all strings
 iid=decode_array(iid)
 
+#observing spacecraft
 isc=i.icmecat['sc_insitu'] #string
 isc=decode_array(isc)
 
+#all times need to be converted from the IDL format to matplotlib format
 icme_start_time=i.icmecat['ICME_START_TIME']
 [icme_start_time_num,icme_start_time_str]=time_to_num_cat(icme_start_time)
 
@@ -260,6 +145,7 @@ mo_start_time=i.icmecat['MO_START_TIME']
 mo_end_time=i.icmecat['MO_END_TIME']
 [mo_end_time_num,mo_end_time_str]=time_to_num_cat(mo_end_time)
 
+#this time exists only for Wind
 icme_end_time=i.icmecat['ICME_END_TIME']
 [icme_end_time_num,icme_end_time_str]=time_to_num_cat(icme_end_time)
 
@@ -287,9 +173,13 @@ sheath_temperature=i.icmecat['SHEATH_TEMPERATURE']
 sheath_temperature_std=i.icmecat['SHEATH_TEMPERATURE_STD']
 mo_temperature=i.icmecat['MO_TEMPERATURE']
 mo_temperature_std=i.icmecat['MO_TEMPERATURE_STD']
+sheath_pdyn=i.icmecat['SHEATH_PDYN']
+sheath_pdyn_std=i.icmecat['SHEATH_PDYN_STD']
+mo_pdyn=i.icmecat['MO_PDYN']
+mo_pdyn_std=i.icmecat['MO_PDYN_STD']
 
 
-#get indices of events in different spacecraft
+#get indices of events by different spacecraft
 ivexind=np.where(isc == 'VEX')
 istaind=np.where(isc == 'STEREO-A')
 istbind=np.where(isc == 'STEREO-B')
@@ -312,6 +202,9 @@ riseend=mdates.date2num(sunpy.time.parse_time('2011-06-30'))
 
 maxstart=mdates.date2num(sunpy.time.parse_time('2011-07-01'))
 maxend=mdates.date2num(sunpy.time.parse_time('2014-12-31'))
+
+
+#extract events by limits of solar min, rising, max, too few events for MAVEN and Ulysses
 
 #extract events by limits of solar min, rising, max, too few events for MAVEN and Ulysses
 
@@ -340,13 +233,10 @@ istbind_rise=iallind_rise[np.where(isc[iallind_rise]=='STEREO-B')]
 istbind_max=iallind_max[np.where(isc[iallind_max]=='STEREO-B')]
 
 
-
-
-Rs_in_AU=7e5/149.5e6
-
-
-
-
+#select the events at Mercury extra after orbit insertion, no events for solar minimum!
+imercind_min=iallind_min[np.where(np.logical_and(isc[iallind_min] =='MESSENGER',icme_start_time_num[iallind_min] > mdates.date2num(sunpy.time.parse_time('2011-03-18'))))]
+imercind_rise=iallind_rise[np.where(np.logical_and(isc[iallind_rise] =='MESSENGER',icme_start_time_num[iallind_rise] > mdates.date2num(sunpy.time.parse_time('2011-03-18'))))]
+imercind_max=iallind_max[np.where(np.logical_and(isc[iallind_max] =='MESSENGER',icme_start_time_num[iallind_max] > mdates.date2num(sunpy.time.parse_time('2011-03-18'))))]
 
 
 
@@ -360,6 +250,9 @@ Rs_in_AU=7e5/149.5e6
 
 
 
+
+
+sys.exit()
 
 
 
@@ -674,89 +567,14 @@ plt.figtext(0.01,0.98,'a',color='black', fontsize=fsize, ha='left',fontweight='b
 plt.figtext(0.01,0.485,'b',color='black', fontsize=fsize, ha='left',fontweight='bold')
 
 plt.show()
-plt.savefig('plots_psp/icme_durations_distance_time_parker.pdf', dpi=300)
-plt.savefig('plots_psp/icme_durations_distance_time_parker.png', dpi=300)
+plt.savefig('plots_psp/icme_durations_distance_time_paper.pdf', dpi=300)
+plt.savefig('plots_psp/icme_durations_distance_time_paper.png', dpi=300)
 
 
 
 
 #results on durations
 
-
-
-
-#################################################
-
-#D
-
-# 
-# print()
-# print()
-# print('--------------------------------------------------')
-# print()
-# print()
-# 
-# print('DURATION ')
-# 
-# print()
-# print('MESSENGER +/-')
-# print(round(np.mean(icme_durations[imercind]),1))
-# print(round(np.std(icme_durations[imercind]),1))
-# 
-# #print('min')
-# #np.mean(icme_durations[imercind][imercind_min])
-# #np.std(icme_durations[imercind][imercind_min])
-# print('rise')
-# print(round(np.mean(icme_durations[imesind][imercind_rise]),1))
-# print(round(np.std(icme_durations[imercind][imercind_rise]),1))
-# print('max')
-# print(round(np.mean(icme_durations[imercind][imercind_max]),1))
-# print(round(np.std(icme_durations[imercind][imercind_max]),1))
-# 
-# 
-# print()
-# print('Venus')
-# print(round(np.mean(icme_durations[ivexind]),1))
-# print(round(np.std(icme_durations[ivexind]),1))
-# print('min')
-# print(round(np.mean(icme_durations[ivexind][ivexind_min]),1))
-# print(round(np.std(icme_durations[ivexind][ivexind_min]),1))
-# print('rise')
-# print(round(np.mean(icme_durations[ivexind][ivexind_rise]),1))
-# print(round(np.std(icme_durations[ivexind][ivexind_rise]),1))
-# print('max')
-# print(round(np.mean(icme_durations[ivexind][ivexind_max]),1))
-# print(round(np.std(icme_durations[ivexind][ivexind_max]),1))
-# 
-# print()
-# print('Earth')
-# print(round(np.mean(icme_durations[iwinind]),1))
-# print(round(np.std(icme_durations[iwinind]),1))
-# print('min')
-# print(round(np.mean(icme_durations[iwinind][iwinind_min]),1))
-# print(round(np.std(icme_durations[iwinind][iwinind_min]),1))
-# print('rise')
-# print(round(np.mean(icme_durations[iwinind][iwinind_rise]),1))
-# print(round(np.std(icme_durations[iwinind][iwinind_rise]),1))
-# print('max')
-# print(round(np.mean(icme_durations[iwinind][iwinind_max]),1))
-# print(round(np.std(icme_durations[iwinind][iwinind_max]),1))
-# 
-# print()
-# 
-# 
-# #only declining phase
-# print('MAVEN')
-# print(round(np.mean(icme_durations[imavind]),1))
-# print(round(np.std(icme_durations[imavind]),1))
-# 
-# 
-# 
-# 
-# 
-# 
-# 
-# 
 
 
 
@@ -797,7 +615,7 @@ ax1 = plt.subplot2grid((2,2), (0, 0))
 
 xfit=np.linspace(0,2,1000)
 
-#power law fits for all events
+#power law fits
 bmaxfit=np.polyfit(np.log10(sc_heliodistance),np.log10(mo_bmax),1)
 b=10**bmaxfit[1]
 bmaxfitfun=b*(xfit**bmaxfit[0])
@@ -808,45 +626,11 @@ b=10**bmeanfit[1]
 bmeanfitfun=b*(xfit**bmeanfit[0])
 print('exponent for bmean fit:', bmeanfit[0])
 
-
-
-################ dont take next 3 fits too seriously -> too few events for other distances during min for example (only VEX/Wind)
-##fit with only minimum events
-bmeanfit_min=np.polyfit(np.log10(sc_heliodistance[iallind_min]),np.log10(mo_bmean[iallind_min]),1)
-bmeanfitfun_min=(10**bmeanfit_min[1])*(xfit**bmeanfit_min[0])
-print('exponent for bmean_min fit:', bmeanfit_min[0])
-
-##fit with only rising events
-bmeanfit_rise=np.polyfit(np.log10(sc_heliodistance[iallind_rise]),np.log10(mo_bmean[iallind_rise]),1)
-bmeanfitfun_rise=(10**bmeanfit_rise[1])*(xfit**bmeanfit_rise[0])
-print('exponent for bmean_rise fit:', bmeanfit_rise[0])
-
-##fit with only maximum events
-bmeanfit_max=np.polyfit(np.log10(sc_heliodistance[iallind_max]),np.log10(mo_bmean[iallind_max]),1)
-bmeanfitfun_max=(10**bmeanfit_max[1])*(xfit**bmeanfit_max[0])
-print('exponent for bmean_max fit:', bmeanfit_max[0])
-
-
-
-
-
-
 plt.plot(sc_heliodistance,mo_bmean,'o',color='black',markersize=5, alpha=0.7,label='$\mathregular{<B>}$')
 plt.plot(xfit,bmeanfitfun,'-',color='black', lw=2, alpha=0.7,label='$\mathregular{<B> \\ fit}$')
 
 plt.plot(sc_heliodistance,mo_bmax,'o',color='dodgerblue',markersize=5, alpha=0.7,label='$\mathregular{B_{max}}$')
 plt.plot(xfit,bmaxfitfun,'-',color='dodgerblue', lw=2, alpha=0.7,label='$\mathregular{B_{max} \\ fit}$')
-
-
-plt.text(1.1,120,'$\mathregular{<B> [nT]= 8.9 R[AU]^{-1.68}}$', fontsize=10)
-plt.text(1.1,100,'$\mathregular{B_{max} [nT]= 12.3 R[AU]^{-1.73}}$', fontsize=10)
-
-
-#plt.annotate('$Bmax[nT]={:.1f} R[AU]^{:.2f} $'.format(10**bmeanfit[1],bmeanfit[0]),xy=(0.9,80),fontsize=9)
-#plt.annotate('$\mathregular{<B>}$: B[nT]={:.1f} R[AU]^{:.2f} '.format(bmeanfit[0],10**bmeanfit[1]),xy=(0.1,60),fontsize=11)
-#plt.annotate('$\mathregular{B_{max}}$: B[nT]={:.1f} R[AU]^{:.2f} '.format(bmaxfit[0],10**bmaxfit[1]),xy=(0.1,60),fontsize=11)
-
-
 
 
 #mars limits
@@ -883,6 +667,8 @@ plt.xticks(fontsize=fsize)
 
 
 
+
+
 ######################## logarithmic plot with Sun
 
 
@@ -890,7 +676,6 @@ plt.xticks(fontsize=fsize)
 #or better
 #patsourakos georgoulis 2016: 0.03 G for 10 Rs #10^5 nT is 1 Gauss
 mo_bmean_sun=np.append(mo_bmean,10**5*0.03) 
-mo_bmax_sun=np.append(mo_bmax,10**5*0.03) 
 
 
 sc_heliodistance_sun=np.append(sc_heliodistance,10*Rs_in_AU)
@@ -903,27 +688,14 @@ bmeanfitfun_sun=b*(xfit**bmeanfit_sun[0])
 print('exponent for bmean fit sun:', bmeanfit_sun[0])
 
 
-bmaxfit_sun=np.polyfit(np.log10(sc_heliodistance_sun),np.log10(mo_bmax_sun),1)
-b=10**bmaxfit_sun[1]
-bmaxfitfun_sun=b*(xfit**bmaxfit_sun[0])
-print('exponent for bmean fit sun:', bmaxfit_sun[0])
-
-
-plt.plot(sc_heliodistance_sun,np.log10(mo_bmean_sun),'o',color='black',markersize=5, alpha=0.7,label='$\mathregular{<B>}$')
-plt.plot(xfit,np.log10(bmeanfitfun_sun),'-',color='black', lw=2, alpha=0.7,label='$\mathregular{<B> fit}$')
-plt.plot(xfit,np.log10(bmaxfitfun_sun),'-',color='dodgerblue', lw=2, alpha=0.7,label='$\mathregular{B_{max} fit}$')
+plt.plot(sc_heliodistance_sun,np.log10(mo_bmean_sun),'o',color='black',markersize=5, alpha=0.7,label='$\mathregular{<B> + B(10 Rs) = 3000 nT}$')
+plt.plot(xfit,np.log10(bmeanfitfun_sun),'-',color='black', lw=2, alpha=0.7,label='$\mathregular{<B> + B(10 Rs) = 3000 nT \\ fit}$')
 
 plt.ylim(0,6)
 
-
-
-plt.text(1.1,3,'$\mathregular{<B> [nT]= 8.9 R[AU]^{-1.70}}$', fontsize=10)
-plt.text(1.1,2.5,'$\mathregular{B_{max} [nT]= 12.3 R[AU]^{-1.79}}$', fontsize=10)
-
-
 ax3.annotate('Mars', xy=(1.5,4), ha='center',fontsize=fsize-2)
-ax3.annotate('PSP', xy=(0.12,4), ha='center',fontsize=fsize-2)
-ax3.annotate('Mercury', xy=(0.38,4), ha='center',fontsize=fsize-2)
+ax3.annotate('SPP', xy=(0.1,4), ha='center',fontsize=fsize-2)
+ax3.annotate('Mercury', xy=(0.37,4), ha='center',fontsize=fsize-2)
 ax3.annotate('Venus', xy=(0.72,4), ha='center',fontsize=fsize-2)
 ax3.annotate('Earth', xy=(1,4), ha='center',fontsize=fsize-2)
 
@@ -947,8 +719,10 @@ plt.axvspan(np.min(pos.earth[0]),np.max(pos.earth[0]), color='mediumseagreen', a
 #plt.figtext(0.6,0.8,'Earth',color='mediumseagreen')
 plt.xlim(0,1.8)
 
-#PSP from 0.044 AU to 0.3 AU unknown territory
-plt.axvspan(0.044,0.3, color='magenta', alpha=0.2)
+#solar probe plus 10 to 36 Rs close approaches
+
+plt.axvspan(Rs_in_AU*10,Rs_in_AU*36,color='magenta', alpha=0.2)
+
 
 
 
@@ -961,38 +735,6 @@ plt.figtext(0.03,0.49,'c',color='black', fontsize=fsize, ha='left',fontweight='b
 
 #sns.despine()
 #plt.tight_layout()
-
-
-
-print('results for bmean in MO and distance for PSP from 0.04 to 0.3 AU')
-print('all fits')
-psp_dist=np.where(np.logical_and(xfit < 0.3, xfit > 0.04))
-#calculate function only with psp_dist values
-psp_b=10**bmeanfit_sun[1]*(xfit[psp_dist]**bmeanfit_sun[0])
-pspbmean_mean=np.mean(psp_b)
-pspbmean_std=np.std(psp_b)
-pspbmean_min=np.min(psp_b)
-pspbmean_max=np.max(psp_b)
-print('Parker predicted mean field in MO from 0.044 to 0.3 AU: mean +/ std, min, max')
-print(pspbmean_mean, ' +/- ',pspbmean_std)
-print(pspbmean_min, ' to ',pspbmean_max)
-
-
-
-print('results for bmean in MO and distance for PSP from 0.04 to 0.3 AU')
-print('all fits')
-psp_dist=np.where(np.logical_and(xfit < 0.3, xfit > 0.04))
-#calculate function only with psp_dist values
-psp_b=10**bmaxfit_sun[1]*(xfit[psp_dist]**bmaxfit_sun[0])
-pspbmax_mean=np.mean(psp_b)
-pspbmax_std=np.std(psp_b)
-pspbmax_min=np.min(psp_b)
-pspbmax_max=np.max(psp_b)
-print('Parker predicted max field in MO from 0.044 to 0.3 AU: mean +/ std, min, max')
-print(pspbmax_mean, ' +/- ',pspbmax_std)
-print(pspbmax_min, ' to ',pspbmax_max)
-
-
 
 
 
@@ -1009,7 +751,7 @@ markers=6
 linew=0
 
 
-plt.plot_date(icme_start_time_num[imesind],mo_bmean[imesind],'o',color='darkgrey',markersize=markers,linestyle='-',linewidth=linew,label='MESSENGER')
+plt.plot_date(icme_start_time_num[imercind],mo_bmean[imercind],'o',color='darkgrey',markersize=markers,linestyle='-',linewidth=linew,label='Mercury')
 plt.plot_date(icme_start_time_num[ivexind],mo_bmean[ivexind],'o',color='orange',markersize=markers,linestyle='-',linewidth=linew, label='Venus')
 plt.plot_date(icme_start_time_num[iwinind],mo_bmean[iwinind],'o',color='mediumseagreen',markersize=markers, linestyle='-', linewidth=linew, label='Earth')
 plt.plot_date(icme_start_time_num[imavind],mo_bmean[imavind],'o',color='steelblue',markersize=markers,linestyle='-',linewidth=linew, label='Mars')
@@ -1041,7 +783,7 @@ mu=mdates.date2num(sunpy.time.parse_time('2013-01-01'))
 
 ygauss=1/(sigma*np.sqrt(2*np.pi))*np.exp(-((xfit-mu)**2)/(2*sigma**2) )
 #normalize with 1/max(ygauss)
-#plt.plot_date(xfit, ygauss*1/max(ygauss)*bfitmax,'o',color='darkgrey',linestyle='-',markersize=0, label='Mercury fit')
+plt.plot_date(xfit, ygauss*1/max(ygauss)*bfitmax,'o',color='darkgrey',linestyle='-',markersize=0, label='Mercury fit')
 
 
 #VEX
@@ -1051,7 +793,7 @@ bfitmax=40
 mu=mdates.date2num(sunpy.time.parse_time('2013-01-01'))
 ygauss=1/(sigma*np.sqrt(2*np.pi))*np.exp(-((xfit-mu)**2)/(2*sigma**2) )
 #normalize with 1/max(ygauss)
-#plt.plot_date(xfit, ygauss*1/max(ygauss)*bfitmax,'o',color='orange',linestyle='-',markersize=0, label='Venus fit')
+plt.plot_date(xfit, ygauss*1/max(ygauss)*bfitmax,'o',color='orange',linestyle='-',markersize=0, label='Venus fit')
 
 #Wind
 sigma=1000
@@ -1059,13 +801,13 @@ bfitmax=10
 mu=mdates.date2num(sunpy.time.parse_time('2013-01-01'))
 ygauss=1/(sigma*np.sqrt(2*np.pi))*np.exp(-((xfit-mu)**2)/(2*sigma**2) )
 #normalize with 1/max(ygauss)
-#plt.plot_date(xfit, ygauss*1/max(ygauss)*bfitmax,'o',color='mediumseagreen',linestyle='-',markersize=0, label='Earth fit')
+plt.plot_date(xfit, ygauss*1/max(ygauss)*bfitmax,'o',color='mediumseagreen',linestyle='-',markersize=0, label='Earth fit')
 
 
 #for Mars: reconstruct likely parameters if sigma is quite similar for all fits, take mean of those sigmas and adjust bfitmax as function of distance with power law)
 #plot reconstructed function for Mars
 bfitmax=6
-#plt.plot_date(xfit, ygauss*1/max(ygauss)*bfitmax,'o',color='steelblue',linestyle='--',markersize=0, label='Mars reconstr.')
+plt.plot_date(xfit, ygauss*1/max(ygauss)*bfitmax,'o',color='steelblue',linestyle='--',markersize=0, label='Mars reconstr.')
 
 
 plt.legend(loc=1,fontsize=fsize-2)
@@ -1090,21 +832,6 @@ plt.annotate('solar maximum',xy=(maxstart+(maxend-maxstart)/2,vlevel),color='bla
 plt.annotate('<',xy=(maxstart+10,vlevel),ha='left')
 plt.annotate('>',xy=(maxend,vlevel),ha='right')
 
-
-
-plt.plot_date( [minstart,minend], [np.mean(mo_bmean[iwinind_min]),np.mean(mo_bmean[iwinind_min])], color='mediumseagreen', linestyle='-',markersize=0 ) 
-plt.plot_date( [minstart,minend], [np.mean(mo_bmean[ivexind_min]),np.mean(mo_bmean[ivexind_min])], color='orange', linestyle='-', markersize=0) 
-plt.plot_date( [minstart,minend], [np.mean(mo_bmean[imesind_min]),np.mean(mo_bmean[imesind_min])], color='darkgrey', linestyle='-', markersize=0) 
-
-
-plt.plot_date( [risestart,riseend], [np.mean(mo_bmean[iwinind_rise]),np.mean(mo_bmean[iwinind_rise])], color='mediumseagreen', linestyle='-',markersize=0 ) 
-plt.plot_date( [risestart,riseend], [np.mean(mo_bmean[ivexind_rise]),np.mean(mo_bmean[ivexind_rise])], color='orange', linestyle='-', markersize=0) 
-plt.plot_date( [risestart,riseend], [np.mean(mo_bmean[imesind_rise]),np.mean(mo_bmean[imesind_rise])], color='darkgrey', linestyle='-', markersize=0) 
-
-
-plt.plot_date( [maxstart,maxend], [np.mean(mo_bmean[iwinind_max]),np.mean(mo_bmean[iwinind_max])], color='mediumseagreen', linestyle='-',markersize=0 ) 
-plt.plot_date( [maxstart,maxend], [np.mean(mo_bmean[ivexind_max]),np.mean(mo_bmean[ivexind_max])], color='orange', linestyle='-', markersize=0) 
-plt.plot_date( [maxstart,maxend], [np.mean(mo_bmean[imesind_max]),np.mean(mo_bmean[imesind_max])], color='darkgrey', linestyle='-', markersize=0) 
 
 
 
@@ -1132,8 +859,17 @@ fsize=14
 plt.tight_layout()
 
 #plt.show()
-plt.savefig('plots_psp/icme_total_field_distance_time.pdf', dpi=300)
-plt.savefig('plots_psp/icme_total_field_distance_time.png', dpi=300)
+plt.savefig('plots/icme_total_field_distance_time.pdf', dpi=300)
+plt.savefig('plots/icme_total_field_distance_time.png', dpi=300)
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1235,7 +971,7 @@ yearly_mid_times=[mdates.date2num(sunpy.time.parse_time('2007-07-01')),
 [vex_time,wind_time,sta_time,stb_time,mav_time,mes_time]=pickle.load( open( "../catpy/DATACAT/insitu_times_mdates_maven_interp.p", "rb" ) )
 sta= pickle.load( open( "../catpy/DATACAT/STA_2007to2015_SCEQ.p", "rb" ) )
 stb= pickle.load( open( "../catpy/DATACAT/STB_2007to2014_SCEQ.p", "rb" ) )
-wind=pickle.load( open( "../catpy/DATACAT/WIND_2007to2016_HEEQ.p", "rb" ) )
+wind=pickle.load( open( "../catpy/DATACAT/WIND_2007to2018_HEEQ_plasma_median21.p", "rb" ) )
 
 total_data_days_sta=np.zeros(np.size(yearly_mid_times))
 total_data_days_sta.fill(np.nan)
@@ -2149,8 +1885,8 @@ plt.ylim((0,25))
 plt.tight_layout()
 
 plt.show()
-plt.savefig('plots_psp/inside.pdf', dpi=300)
-plt.savefig('plots_psp/inside.png', dpi=300)
+plt.savefig('plots/inside.pdf', dpi=300)
+plt.savefig('plots/inside.png', dpi=300)
 
 
 
@@ -2185,7 +1921,7 @@ plt.savefig('plots_psp/inside.png', dpi=300)
 
 ###################################################################################
 
-##################### (4) arrival frequencies in ICMECAT  ##############
+##################### (1) arrival frequencies in ICMECAT  ##############
 
 
 yearly_bin_edges=[mdates.date2num(sunpy.time.parse_time('2007-01-01')),
@@ -2222,6 +1958,8 @@ plt.plot_date(icme_start_time_num[istbind],sc_heliodistance[istbind],fmt='o',col
 plt.plot_date(icme_start_time_num[istaind],sc_heliodistance[istaind],fmt='o',color='red',markersize=5)
 plt.plot_date(icme_start_time_num[iulyind],sc_heliodistance[iulyind],fmt='o',color='brown',markersize=5)
 plt.plot_date(icme_start_time_num[imavind],sc_heliodistance[imavind],fmt='o',color='steelblue',markersize=5)
+
+
 
 
 
@@ -2283,17 +2021,17 @@ histstb=histstb/total_data_days_stb*365
 histmav=histmav/total_data_days_mav*365
 
 binedges=bin_edgeswin
-pickle.dump([binedges,histwin,histvex,histmes,histsta,histstb,histmav], open( "plots_psp/icme_frequency.p", "wb" ), protocol=2 )
-#[binedges,histwin,histvex,histmes,histsta,histstb,histmav]=pickle.load( open( "plots/stats_psp/icme_frequency.p", "rb" ) )
+pickle.dump([binedges,histwin,histvex,histmes,histsta,histstb,histmav], open( "plots/icme_frequency.p", "wb" ), protocol=2 )
+#[binedges,histwin,histvex,histmes,histsta,histstb,histmav]=pickle.load( open( "plots/stats/icme_frequency.p", "rb" ) )
 
 #binweite=45
-ax2.bar(bin_edgeswin[:-1]+30,histwin, width=binweite,color='mediumseagreen', alpha=0.5,edgecolor='black')
-ax2.bar(bin_edgesvex[:-1]+30+binweite,histvex, width=binweite,color='orange', alpha=0.5,edgecolor='black')
-ax2.bar(bin_edgesmes[:-1]+30+ binweite*2,histmes, width=binweite,color='darkgrey', alpha=0.5,edgecolor='black')
-ax2.bar(bin_edgesstb[:-1]+30+binweite*3,histstb, width=binweite,color='royalblue', alpha=0.5,edgecolor='black')
-ax2.bar(bin_edgessta[:-1]+30+binweite*4,histsta, width=binweite,color='red', alpha=0.5,edgecolor='black')
+ax2.bar(bin_edgeswin[:-1]+30,histwin, width=binweite,color='mediumseagreen', alpha=0.5)
+ax2.bar(bin_edgesvex[:-1]+30+binweite,histvex, width=binweite,color='orange', alpha=0.5)
+ax2.bar(bin_edgesmes[:-1]+30+ binweite*2,histmes, width=binweite,color='darkgrey', alpha=0.5)
+ax2.bar(bin_edgesstb[:-1]+30+binweite*3,histstb, width=binweite,color='royalblue', alpha=0.5)
+ax2.bar(bin_edgessta[:-1]+30+binweite*4,histsta, width=binweite,color='red', alpha=0.5)
 #ax2.bar(bin_edgessta[:-1]+30+binweite*5,histuly, width=binweite,color='brown', alpha=0.5)
-ax2.bar(bin_edgesmav[:-1]+30+binweite*6,histmav, width=binweite,color='steelblue', alpha=0.5,edgecolor='black')
+ax2.bar(bin_edgesmav[:-1]+30+binweite*6,histmav, width=binweite,color='steelblue', alpha=0.5)
 
 plt.xlim(yearly_bin_edges[0],yearly_bin_edges[10])
 ax2.xaxis_date()
@@ -2350,27 +2088,8 @@ plt.tight_layout()
 
 #sns.despine()
 plt.show()
-plt.savefig('plots_psp/frequency.pdf', dpi=300)
-plt.savefig('plots_psp/frequency.png', dpi=300)
-
-print('for solar min 2007-2009 average ICME per year rate:')
-mean07=np.mean([histwin[0],histvex[0],histsta[0],histstb[0],histmes[0]])
-mean08=np.mean([histwin[1],histvex[1],histsta[1],histstb[1],histmes[1]])
-mean09=np.mean([histwin[2],histvex[2],histsta[2],histstb[2],histmes[2]])
-print(np.nanmean([mean07,mean08,mean09]))
-
-print('for 2010 2011')
-mean10=np.mean([histwin[3],histvex[3],histsta[3],histstb[3],histmes[3]])
-mean11=np.mean([histwin[4],histvex[4],histsta[4],histstb[4],histmes[4]])
-print(np.mean([mean10,mean11]))
-
-
-print('for 2012 2013 2014')
-mean12=np.mean([histwin[5],histvex[5],histsta[5],histstb[5],histmes[5]])
-mean13=np.mean([histwin[6],histvex[6],histsta[6],histstb[6],histmes[6]])
-mean14=np.mean([histwin[7],histvex[7],histsta[7],histstb[7],histmes[7]])
-
-print(np.mean([mean12,mean13,mean14]))
+plt.savefig('plots/frequency.pdf', dpi=300)
+plt.savefig('plots/frequency.png', dpi=300)
 
 
 
@@ -2378,7 +2097,10 @@ print(np.mean([mean12,mean13,mean14]))
 
 
 
-sys.exit()
+
+
+
+
 
 
 
@@ -2485,6 +2207,71 @@ print('MAVEN')
 print(round(np.mean(mo_bmean[imavind]),1))
 print(round(np.std(mo_bmean[imavind]),1))
 
+
+#################################################
+
+#D
+
+
+print()
+print()
+print('--------------------------------------------------')
+print()
+print()
+
+print('DURATION ')
+
+print()
+print('Mercury +/-')
+print(round(np.mean(icme_durations[imercind]),1))
+print(round(np.std(icme_durations[imercind]),1))
+
+#print('min')
+#np.mean(icme_durations[imercind][imercind_min])
+#np.std(icme_durations[imercind][imercind_min])
+print('rise')
+print(round(np.mean(icme_durations[imercind][imercind_rise]),1))
+print(round(np.std(icme_durations[imercind][imercind_rise]),1))
+print('max')
+print(round(np.mean(icme_durations[imercind][imercind_max]),1))
+print(round(np.std(icme_durations[imercind][imercind_max]),1))
+
+
+print()
+print('Venus')
+print(round(np.mean(icme_durations[ivexind]),1))
+print(round(np.std(icme_durations[ivexind]),1))
+print('min')
+print(round(np.mean(icme_durations[ivexind][ivexind_min]),1))
+print(round(np.std(icme_durations[ivexind][ivexind_min]),1))
+print('rise')
+print(round(np.mean(icme_durations[ivexind][ivexind_rise]),1))
+print(round(np.std(icme_durations[ivexind][ivexind_rise]),1))
+print('max')
+print(round(np.mean(icme_durations[ivexind][ivexind_max]),1))
+print(round(np.std(icme_durations[ivexind][ivexind_max]),1))
+
+print()
+print('Earth')
+print(round(np.mean(icme_durations[iwinind]),1))
+print(round(np.std(icme_durations[iwinind]),1))
+print('min')
+print(round(np.mean(icme_durations[iwinind][iwinind_min]),1))
+print(round(np.std(icme_durations[iwinind][iwinind_min]),1))
+print('rise')
+print(round(np.mean(icme_durations[iwinind][iwinind_rise]),1))
+print(round(np.std(icme_durations[iwinind][iwinind_rise]),1))
+print('max')
+print(round(np.mean(icme_durations[iwinind][iwinind_max]),1))
+print(round(np.std(icme_durations[iwinind][iwinind_max]),1))
+
+print()
+
+
+#only declining phase
+print('MAVEN')
+print(round(np.mean(icme_durations[imavind]),1))
+print(round(np.std(icme_durations[imavind]),1))
 
 ###################################################
 #F
