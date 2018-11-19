@@ -1,4 +1,4 @@
-# cme_stats_v1.py
+# cme_stats.py
 #
 # analyses HELCATS ICMECAT data for paper on CME statistics Moestl et al. 2018 tbd
 # Author: C. Moestl, Space Research Institute IWF Graz, Austria
@@ -246,13 +246,6 @@ imercind_max=iallind_max[np.where(np.logical_and(isc[iallind_max] =='MESSENGER',
 
 
 
-
-
-
-
-
-
-sys.exit()
 
 
 
