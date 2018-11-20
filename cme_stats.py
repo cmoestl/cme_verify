@@ -89,6 +89,8 @@ pos_time_num=time_to_num_cat(pos.time)[0]
 
 
 
+print()
+print()
 
 print('Spacecraft positions available:')
 print(pos.keys())
@@ -937,19 +939,18 @@ yearly_mid_times=[mdates.date2num(sunpy.time.parse_time('2007-07-01')),
 #and use in calculation
 
 
-
-######### move to module
-
-
-############### make time files ************
-
+#redo file:
 #converted times of the original data are here:
-[vex_time,wind_time,sta_time,stb_time,mav_time,mes_time]=pickle.load( open( "../catpy/DATACAT/insitu_times_mdates_maven_interp.p", "rb" ) )
+#[vex_time,win_time,sta_time,stb_time,mav_time,mes_time]=pickle.load( open( "../catpy/DATACAT/insitu_times_mdates_maven_interp.p", "rb" ) )
+#sta= pickle.load( open( "../catpy/DATACAT/STA_2007to2015_SCEQ.p", "rb" ) )
+#stb= pickle.load( open( "../catpy/DATACAT/STB_2007to2014_SCEQ.p", "rb" ) )
+#wind=pickle.load( open( "../catpy/DATACAT/WIND_2007to2018_HEEQ_plasma_median21.p", "rb" ) )
 
 
-sta= pickle.load( open( "../catpy/DATACAT/STA_2007to2015_SCEQ.p", "rb" ) )
-stb= pickle.load( open( "../catpy/DATACAT/STB_2007to2014_SCEQ.p", "rb" ) )
-wind=pickle.load( open( "../catpy/DATACAT/WIND_2007to2018_HEEQ_plasma_median21.p", "rb" ) )
+[win_time,win_btot,sta_time,sta_btot,stb_time,stb_btot, \
+mav_time, mav_btot, vex_time, vex_btot, mes_time, mes_btot]= \
+pickle.load(open( "../catpy/DATACAT/insitu_data_time_btot_moestl_2019_paper.p", "rb" ) )
+
 
 total_data_days_sta=np.zeros(np.size(yearly_mid_times))
 total_data_days_sta.fill(np.nan)
@@ -964,29 +965,27 @@ total_data_days_wind.fill(np.nan)
 
 
 
-sys.exit()
-
 #go through each year and search for data gaps, ok for solar wind missions 
 
 for i in range(np.size(yearly_mid_times)):
  
   #Wind
-  thisyear=np.where(np.logical_and((wind_time > yearly_start_times[i]),(wind_time < yearly_end_times[i])))
-  nan=np.isnan(wind.btot[thisyear]) 
+  thisyear=np.where(np.logical_and((win_time > yearly_start_times[i]),(win_time < yearly_end_times[i])))
+  nan=np.isnan(win_btot[thisyear]) 
   notnan=np.where(nan == False)
   if np.size(notnan) >0: total_data_days_wind[i]=365
   if np.size(nan) > 0: total_data_days_wind[i]=np.size(notnan)/np.size(nan)*365
   
   #STA
   thisyear=np.where(np.logical_and((sta_time > yearly_start_times[i]),(sta_time < yearly_end_times[i])))
-  nan=np.isnan(sta.btot[thisyear]) 
+  nan=np.isnan(sta_btot[thisyear]) 
   notnan=np.where(nan == False)
   if np.size(notnan) >0: total_data_days_sta[i]=365
   if np.size(nan) > 0: total_data_days_sta[i]=np.size(notnan)/np.size(nan)*365
 
   #STB
   thisyear=np.where(np.logical_and((stb_time > yearly_start_times[i]),(stb_time < yearly_end_times[i])))
-  nan=np.isnan(stb.btot[thisyear]) 
+  nan=np.isnan(stb_btot[thisyear]) 
   notnan=np.where(nan == False)
   if np.size(notnan) >0: total_data_days_stb[i]=365
   if np.size(nan) > 0: total_data_days_stb[i]=np.size(notnan)/np.size(nan)*365
@@ -1337,22 +1336,22 @@ total_data_days_wind_cycle.fill(np.nan)
 for i in range(np.size(cycle_start_times)):
  
   #Wind
-  phase=np.where(np.logical_and((wind_time > cycle_start_times[i]),(wind_time < cycle_end_times[i])))
-  nan=np.isnan(wind.btot[phase]) 
+  phase=np.where(np.logical_and((win_time > cycle_start_times[i]),(win_time < cycle_end_times[i])))
+  nan=np.isnan(win_btot[phase]) 
   notnan=np.where(nan == False)
   if np.size(notnan) >0: total_data_days_wind_cycle[i]=cycle_end_times[i]-cycle_start_times[i]
   if np.size(nan) > 0: total_data_days_wind_cycle[i]=np.size(notnan)/np.size(nan)*(cycle_end_times[i]-cycle_start_times[i])
   
   #STA
   phase=np.where(np.logical_and((sta_time > cycle_start_times[i]),(sta_time < cycle_end_times[i])))
-  nan=np.isnan(sta.btot[phase]) 
+  nan=np.isnan(sta_btot[phase]) 
   notnan=np.where(nan == False)
   if np.size(notnan) >0: total_data_days_sta_cycle[i]=cycle_end_times[i]-cycle_start_times[i]
   if np.size(nan) > 0: total_data_days_sta_cycle[i]=np.size(notnan)/np.size(nan)*(cycle_end_times[i]-cycle_start_times[i])
 
   #STB
   phase=np.where(np.logical_and((stb_time > cycle_start_times[i]),(stb_time < cycle_end_times[i])))
-  nan=np.isnan(stb.btot[phase]) 
+  nan=np.isnan(stb_btot[phase]) 
   notnan=np.where(nan == False)
   if np.size(notnan) >0: total_data_days_stb_cycle[i]=cycle_end_times[i]-cycle_start_times[i]
   if np.size(nan) > 0: total_data_days_stb_cycle[i]=np.size(notnan)/np.size(nan)*(cycle_end_times[i]-cycle_start_times[i])
