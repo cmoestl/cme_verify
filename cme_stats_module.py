@@ -14,6 +14,7 @@ import urllib
 import json
 import os
 import pycdf
+import pdb
 from pycdf import pycdf
 
 # use
@@ -21,6 +22,7 @@ from pycdf import pycdf
 # importlib.reload(cme_stats_module)
 # to update module while working in command line 
 
+#set breakpoints with pdb.set_trace
 
 # LIST OF FUNCTIONS
 # getpositions

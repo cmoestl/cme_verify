@@ -2,7 +2,6 @@
 #
 # analyses HELCATS ICMECAT data for EGU 2018 poster on CME statistics
 # Author: C. Moestl, Space Research Institute IWF Graz, Austria
-# started May 2015
 # last update: February 2018
 
 

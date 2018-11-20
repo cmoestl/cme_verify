@@ -37,8 +37,11 @@ from cme_stats_module import get_omni2_data
 
 
 #ignore warnings
-import warnings
+#import warnings
 #warnings.filterwarnings('ignore')
+
+#use one time to control plots
+#plt.show(block=True)
 
 
 
@@ -54,12 +57,18 @@ plt.close('all')
 print()
 print('Start cme_stats.py main program.')
 print('ICME parameters at all 4 terrestrial planets.')
+print('Christian Moestl, IWF Graz, Austria, last update: November 2018.')
 
 ######################## get cats
 
 
 #solar radius
 Rs_in_AU=7e5/149.5e6
+
+
+
+
+
 
 
 filename_icmecat='cats/HELCATS_ICMECAT_v20_SCEQ.sav'
@@ -73,8 +82,13 @@ i=getcat(filename_icmecat)
 #print(i.icmecat.dtype)
 
 #get spacecraft and planet positions
+
 pos=getcat('cats/positions_2007_2023_HEEQ_6hours.sav')
 pos_time_num=time_to_num_cat(pos.time)[0]
+
+
+
+
 
 print('Spacecraft positions available:')
 print(pos.keys())
@@ -258,7 +272,6 @@ print('-------------------------------------------------')
 print()
 print('1a ICME DURATION VS DISTANCE')
 print()
-print('************** STEREO-A STEREO-B on plot')
 
 fig=plt.figure(1,figsize=(12,11	))
 fsize=15
@@ -268,16 +281,16 @@ xfit=np.linspace(0,2,1000)
 
 #force through origin, fit with y=kx
 scx=sc_heliodistance[:,np.newaxis]
-durfit_f, _, _, _ =np.linalg.lstsq(scx,icme_durations)
+durfit_f, _, _, _ =np.linalg.lstsq(scx,icme_durations, rcond=None)
 
 scxmin=sc_heliodistance[iallind_min][:,np.newaxis]
-durfitmin_f, _, _, _ =np.linalg.lstsq(scxmin,icme_durations[iallind_min])
+durfitmin_f, _, _, _ =np.linalg.lstsq(scxmin,icme_durations[iallind_min],rcond=None)
 
 scxrise=sc_heliodistance[iallind_rise][:,np.newaxis]
-durfitrise_f, _, _, _ =np.linalg.lstsq(scxrise,icme_durations[iallind_rise])
+durfitrise_f, _, _, _ =np.linalg.lstsq(scxrise,icme_durations[iallind_rise],rcond=None)
 
 scxmax=sc_heliodistance[iallind_max][:,np.newaxis]
-durfitmax_f, _, _, _ =np.linalg.lstsq(scxmax,icme_durations[iallind_max])
+durfitmax_f, _, _, _ =np.linalg.lstsq(scxmax,icme_durations[iallind_max],rcond=None)
 
 #make the y axis for the fits forced through the origin
 ydurfitall_f=durfit_f*xfit
@@ -285,7 +298,7 @@ ydurfitmin_f=durfitmin_f*xfit
 ydurfitrise_f=durfitrise_f*xfit
 ydurfitmax_f=durfitmax_f*xfit
 
-plt.plot(sc_heliodistance,icme_durations,'o',color='blue',markersize=5, alpha=0.3,label='D')
+plt.plot(sc_heliodistance,icme_durations,'o',color='blue',markersize=4, alpha=0.4)
 #for plotting min/rise/max differently
 #plt.plot(sc_heliodistance[iallind_min],icme_durations[iallind_min],'o',color='dimgre',markersize=3, alpha=0.4,label='D min')
 #plt.plot(sc_heliodistance[iallind_rise],icme_durations[iallind_rise],'o',color='grey',markersize=3, alpha=0.7,label='D rise')
@@ -300,37 +313,48 @@ plt.plot(xfit,ydurfitmax_f,'-',color='black', lw=2, alpha=0.9,label='max fit')
 print()
 
 print('linear fit results, hours vs AU')	
-print('overall: D[h]={:.2f} R[AU] '.format(durfit_f[0]))
-print('minimum: D[h]={:.2f} R[AU] '.format(durfitmin_f[0]))
-print('rising phase: D[h]={:.2f} R[AU]'.format(durfitrise_f[0]))
-print('maximum: D[h]={:.2f} R[AU]'.format(durfitmax_f[0]))
+print('overall:    D[h]={:.2f} R[AU] '.format(durfit_f[0]))
+print('minimum:    D[h]={:.2f} R[AU] '.format(durfitmin_f[0]))
+print('rise phase: D[h]={:.2f} R[AU]'.format(durfitrise_f[0]))
+print('maximum:    D[h]={:.2f} R[AU]'.format(durfitmax_f[0]))
 
-plt.annotate('overall: D[h]={:.2f} R[AU] '.format(durfit_f[0]),xy=(0.1,60),fontsize=11)
-plt.annotate('minimum: D[h]={:.2f} R[AU] '.format(durfitmin_f[0]),xy=(0.1,55),fontsize=11)
-plt.annotate('rising phase: D[h]={:.2f} R[AU]'.format(durfitrise_f[0]),xy=(0.1,50),fontsize=11)
-plt.annotate('maximum: D[h]={:.2f} R[AU]'.format(durfitmax_f[0]),xy=(0.1,45),fontsize=11)
+label_level=85
+plt.annotate('overall:',xy=(0.1,label_level),fontsize=11)
+plt.annotate('D[h]={:.2f} R[AU]'.format(durfit_f[0]),xy=(0.3,label_level),fontsize=11)
+plt.annotate('minimum:',xy=(0.1,label_level-6),fontsize=11) 
+plt.annotate('D[h]={:.2f} R[AU] '.format(durfitmin_f[0]),xy=(0.3,label_level-6),fontsize=11)
+plt.annotate('rise phase:',xy=(0.1,label_level-12),fontsize=11) 
+plt.annotate('D[h]={:.2f} R[AU]'.format(durfitrise_f[0]),xy=(0.3,label_level-12),fontsize=11)
+plt.annotate('maximum:',xy=(0.1,label_level-18),fontsize=11)    
+plt.annotate('D[h]={:.2f} R[AU]'.format(durfitmax_f[0]),xy=(0.3,label_level-18),fontsize=11)
 
 #planet limits
 plt.axvspan(np.min(pos.mars[0]),np.max(pos.mars[0]), color='orangered', alpha=0.2)
 plt.axvspan(np.min(pos.mercury[0]),np.max(pos.mercury[0]), color='darkgrey', alpha=0.2)
 plt.axvspan(np.min(pos.venus[0]),np.max(pos.venus[0]), color='orange', alpha=0.2)
 plt.axvspan(np.min(pos.earth[0]),np.max(pos.earth[0]), color='mediumseagreen', alpha=0.2)
+#plt.axvspan(np.min(pos.sta[0]),np.max(pos.sta[0]), color='red', alpha=0.2)  #STEREO-A
+#plt.axvspan(np.min(pos.stb[0]),np.max(pos.stb[0]), color='blue', alpha=0.2)  #STEREO-B
+#Parker Probe minimum
+plt.plot([0.046,0.046],[0,110], color='black', linestyle='--', linewidth=1)
 
-plt.annotate('Mars', xy=(1.5,65), ha='center',fontsize=fsize)
-plt.annotate('Mercury', xy=(0.38,65), ha='center',fontsize=fsize)
-plt.annotate('Venus', xy=(0.72,65), ha='center',fontsize=fsize)
-plt.annotate('Earth', xy=(1,65), ha='center',fontsize=fsize)
+label_level=100
+plt.annotate('Mars', xy=(1.5,label_level), ha='center',fontsize=fsize)
+plt.annotate('Mercury', xy=(0.38,label_level), ha='center',fontsize=fsize)
+plt.annotate('Venus', xy=(0.72,label_level), ha='center',fontsize=fsize)
+plt.annotate('Earth', xy=(1,label_level), ha='center',fontsize=fsize)
+
+plt.annotate('PSP', xy=(0.05,label_level), ha='left',fontsize=fsize)
 
 ax1.set_xticks(np.arange(0,2,0.2))
 plt.xlim(0,max(sc_heliodistance)+0.3)
-plt.ylim(0,70)
+plt.ylim(0,110)
 plt.legend(loc=4,fontsize=fsize-1)
 plt.xlabel('Heliocentric distance R [AU]',fontsize=fsize)
 plt.ylabel('ICME duration D [hours]',fontsize=fsize)
 plt.yticks(fontsize=fsize) 
 plt.xticks(fontsize=fsize) 
 #plt.grid()
-
 
 
 
@@ -476,7 +500,8 @@ print('DURATION results, mean +/- std [hours]')
 
 print()
 print('Mercury ', round(np.mean(icme_durations[imercind]),1),' +/- ', round(np.std(icme_durations[imercind]),1))
-print('min     ', round(np.mean(icme_durations[imercind_min]),1), ' +/- ', round(np.std(icme_durations[imercind_min]),1))
+#print('min     ', round(np.mean(icme_durations[imercind_min]),1), ' +/- ', round(np.std(icme_durations[imercind_min]),1))
+print('min     no events')
 print('rise    ', round(np.mean(icme_durations[imercind_rise]),1), ' +/- ', round(np.std(icme_durations[imercind_rise]),1))
 print('max     ', round(np.mean(icme_durations[imercind_max]),1), ' +/- ', round(np.std(icme_durations[imercind_max]),1))
 
@@ -523,7 +548,7 @@ print()
 #################################### (2) Bfield plot ICMECAT  ############################
 
 print('-------------------------------------------------')
-print('2 MO FIELD VS DISTANCE and time, 3 panels')
+print('2 MO FIELD VS DISTANCE and time, 3 figure panels')
 print()
 
 
@@ -533,33 +558,38 @@ fig=plt.figure(2,figsize=(12,12	))
 fsize=15
 ax1 = plt.subplot2grid((2,2), (0, 0))
 
+# xfit starts here at 1 Rs  because there should not be a 0 in xfit ** bmaxfit[0] later	
+xfit=np.linspace(Rs_in_AU,2,1000)
+
+
+print('Fit results for B in Form: y=B0*x^k')
+
 ####### power law fits for all events
 bmaxfit=np.polyfit(np.log10(sc_heliodistance),np.log10(mo_bmax),1)
 b=10**bmaxfit[1]
 bmaxfitfun=b*(xfit**bmaxfit[0])
-print('exponent for bmax fit:', round(bmaxfit[0],2))
+print('bmax:       ',round(10**bmaxfit[1],2),' x ^', round(bmaxfit[0],2))
 
 bmeanfit=np.polyfit(np.log10(sc_heliodistance),np.log10(mo_bmean),1)
 b=10**bmeanfit[1]
 bmeanfitfun=b*(xfit**bmeanfit[0])
-print('exponent for bmean fit:', round(bmeanfit[0],2))
+print('bmean:      ', round(10**bmeanfit[1],2),' x ^',round(bmeanfit[0],2))
 
 
-################ dont take next 3 fits too seriously -> too few events for other distances during min for example (only VEX/Wind)
 ##fit with only minimum events
 bmeanfit_min=np.polyfit(np.log10(sc_heliodistance[iallind_min]),np.log10(mo_bmean[iallind_min]),1)
 bmeanfitfun_min=(10**bmeanfit_min[1])*(xfit**bmeanfit_min[0])
-print('exponent for bmean_min fit:', round(bmeanfit_min[0],2))
+print('bmean_min:  ', round(10**bmeanfit_min[1],2),' x ^', round(bmeanfit_min[0],2))
 
 ##fit with only rising events
 bmeanfit_rise=np.polyfit(np.log10(sc_heliodistance[iallind_rise]),np.log10(mo_bmean[iallind_rise]),1)
 bmeanfitfun_rise=(10**bmeanfit_rise[1])*(xfit**bmeanfit_rise[0])
-print('exponent for bmean_rise fit:', round(bmeanfit_rise[0],2))
+print('bmean_rise: ', round(10**bmeanfit_rise[1],2),' x ^', round(bmeanfit_rise[0],2))
 
 ##fit with only maximum events
 bmeanfit_max=np.polyfit(np.log10(sc_heliodistance[iallind_max]),np.log10(mo_bmean[iallind_max]),1)
 bmeanfitfun_max=(10**bmeanfit_max[1])*(xfit**bmeanfit_max[0])
-print('exponent for bmean_max fit:', round(bmeanfit_max[0],2))
+print('bmean_max:  ', round(10**bmeanfit_max[1],2),' x ^',round(bmeanfit_max[0],2))
 
 
 
@@ -571,8 +601,9 @@ plt.plot(xfit,bmeanfitfun,'-',color='black', lw=2, alpha=0.7,label='$\mathregula
 plt.plot(sc_heliodistance,mo_bmax,'o',color='dodgerblue',markersize=5, alpha=0.7,label='$\mathregular{B_{max}}$')
 plt.plot(xfit,bmaxfitfun,'-',color='dodgerblue', lw=2, alpha=0.7,label='$\mathregular{B_{max} \\ fit}$')
 
-plt.text(1.1,120,'$\mathregular{<B> [nT]= 8.9 R[AU]^{-1.68}}$', fontsize=10)
-plt.text(1.1,100,'$\mathregular{B_{max} [nT]= 12.3 R[AU]^{-1.73}}$', fontsize=10)
+#plt.text(1.1,120,'$\mathregular{<B> [nT]= {:.2f} R[AU]^{{:.2f}}}$'.format(10**bmeanfit[1],bmeanfit[0]), fontsize=10)
+plt.text(1.1,60,r'<B> [nT]= {:.2f} R[AU]^{:.2f}'.format(10**bmeanfit[1],bmeanfit[0]), fontsize=10)
+
 
 #mars limits
 plt.axvspan(np.min(pos.mars[0]),np.max(pos.mars[0]), color='orangered', alpha=0.2)
@@ -602,39 +633,47 @@ plt.xticks(fontsize=fsize)
 
 
 
+
 ######################## 2b logarithmic plot with Sun
 
-
-#for the bmean fit, append one value for the coronal field at 0.007 AU for 1.5 Rs with 1 Gauss or 10^5 nT
-#or better
+#for the bmean fit, append one value for the coronal field 
 #patsourakos georgoulis 2016: 0.03 G for 10 Rs #10^5 nT is 1 Gauss
 mo_bmean_sun=np.append(mo_bmean,10**5*0.03) 
 mo_bmax_sun=np.append(mo_bmax,10**5*0.03) 
 sc_heliodistance_sun=np.append(sc_heliodistance,10*Rs_in_AU)
 
-ax3 = plt.subplot2grid((2,2), (0, 1))
-
+print()
 bmeanfit_sun=np.polyfit(np.log10(sc_heliodistance_sun),np.log10(mo_bmean_sun),1)
 b=10**bmeanfit_sun[1]
 bmeanfitfun_sun=b*(xfit**bmeanfit_sun[0])
-print('exponent for bmean fit sun:', round(bmeanfit_sun[0],2))
+print('bmean_sun:  ', round(10**bmeanfit_sun[1],2),' x ^',round(bmeanfit_sun[0],2))
 
 bmaxfit_sun=np.polyfit(np.log10(sc_heliodistance_sun),np.log10(mo_bmax_sun),1)
 b=10**bmaxfit_sun[1]
 bmaxfitfun_sun=b*(xfit**bmaxfit_sun[0])
-print('exponent for bmean fit sun:', round(bmaxfit_sun[0],2))
+print('bmax_sun:   ', round(10**bmaxfit_sun[1],2),' x ^',round(bmaxfit_sun[0],2))
+
+
+ax3 = plt.subplot2grid((2,2), (0, 1))
 
 plt.plot(sc_heliodistance_sun,np.log10(mo_bmean_sun),'o',color='black',markersize=5, alpha=0.7,label='$\mathregular{<B>}$')
 plt.plot(xfit,np.log10(bmeanfitfun_sun),'-',color='black', lw=2, alpha=0.7,label='$\mathregular{<B> fit}$')
 plt.plot(xfit,np.log10(bmaxfitfun_sun),'-',color='dodgerblue', lw=2, alpha=0.7,label='$\mathregular{B_{max} fit}$')
 plt.ylim(0,6)
-plt.text(1.1,3,'$\mathregular{<B> [nT]= 8.9 R[AU]^{-1.70}}$', fontsize=10)
-plt.text(1.1,2.5,'$\mathregular{B_{max} [nT]= 12.3 R[AU]^{-1.79}}$', fontsize=10)
 
+
+#Planet labels and shades
 ax3.annotate('Mars', xy=(1.5,4), ha='center',fontsize=fsize-2)
 ax3.annotate('Mercury', xy=(0.38,4), ha='center',fontsize=fsize-2)
 ax3.annotate('Venus', xy=(0.72,4), ha='center',fontsize=fsize-2)
 ax3.annotate('Earth', xy=(1,4), ha='center',fontsize=fsize-2)
+plt.plot([0.046,0.046],[0,10], color='black', linestyle='--', linewidth=1)
+plt.axvspan(np.min(pos.mars[0]),np.max(pos.mars[0]), color='orangered', alpha=0.2)
+plt.axvspan(np.min(pos.mercury[0]),np.max(pos.mercury[0]), color='darkgrey', alpha=0.2)
+plt.axvspan(np.min(pos.venus[0]),np.max(pos.venus[0]), color='orange', alpha=0.2)
+plt.axvspan(np.min(pos.earth[0]),np.max(pos.earth[0]), color='mediumseagreen', alpha=0.2)
+plt.xlim(0,1.8)
+
 
 
 plt.legend(loc=1,fontsize=fsize)
@@ -645,22 +684,11 @@ plt.yticks(fontsize=fsize)
 plt.xticks(fontsize=fsize) 
 
 
-#mars limits
-plt.axvspan(np.min(pos.mars[0]),np.max(pos.mars[0]), color='orangered', alpha=0.2)
-#plt.figtext(0.8,0.8,'Mars',color='orangered')
-plt.axvspan(np.min(pos.mercury[0]),np.max(pos.mercury[0]), color='darkgrey', alpha=0.2)
-#plt.figtext(0.25,0.8,'Mercury',color='darkgrey')
-plt.axvspan(np.min(pos.venus[0]),np.max(pos.venus[0]), color='orange', alpha=0.2)
-#plt.figtext(0.42,0.8,'Venus',color='orange')
-plt.axvspan(np.min(pos.earth[0]),np.max(pos.earth[0]), color='mediumseagreen', alpha=0.2)
-#plt.figtext(0.6,0.8,'Earth',color='mediumseagreen')
-plt.xlim(0,1.8)
-
-
 #panel labels
 plt.figtext(0.03,0.96,'a',color='black', fontsize=fsize, ha='left',fontweight='bold')
 plt.figtext(0.515,0.96,'b',color='black', fontsize=fsize, ha='left',fontweight='bold')
 plt.figtext(0.03,0.49,'c',color='black', fontsize=fsize, ha='left',fontweight='bold')
+
 
 
 
@@ -730,17 +758,26 @@ plt.annotate('<',xy=(maxstart+10,vlevel),ha='left')
 plt.annotate('>',xy=(maxend,vlevel),ha='right')
 
 
-plt.plot_date( [minstart,minend], [np.mean(mo_bmean[iwinind_min]),np.mean(mo_bmean[iwinind_min])], color='mediumseagreen', linestyle='-',markersize=0 ) 
-plt.plot_date( [minstart,minend], [np.mean(mo_bmean[ivexind_min]),np.mean(mo_bmean[ivexind_min])], color='orange', linestyle='-', markersize=0) 
-plt.plot_date( [minstart,minend], [np.mean(mo_bmean[imesind_min]),np.mean(mo_bmean[imesind_min])], color='darkgrey', linestyle='-', markersize=0) 
+plt.plot_date( [minstart,minend], [np.mean(mo_bmean[iwinind_min]), \
+               np.mean(mo_bmean[iwinind_min])], color='mediumseagreen', linestyle='-',markersize=0 ) 
+plt.plot_date( [minstart,minend], [np.mean(mo_bmean[ivexind_min]), \
+               np.mean(mo_bmean[ivexind_min])], color='orange', linestyle='-', markersize=0) 
+plt.plot_date( [minstart,minend], [np.mean(mo_bmean[imesind_min]), \
+               np.mean(mo_bmean[imesind_min])], color='darkgrey', linestyle='-', markersize=0) 
 
-plt.plot_date( [risestart,riseend], [np.mean(mo_bmean[iwinind_rise]),np.mean(mo_bmean[iwinind_rise])], color='mediumseagreen', linestyle='-',markersize=0 ) 
-plt.plot_date( [risestart,riseend], [np.mean(mo_bmean[ivexind_rise]),np.mean(mo_bmean[ivexind_rise])], color='orange', linestyle='-', markersize=0) 
-plt.plot_date( [risestart,riseend], [np.mean(mo_bmean[imesind_rise]),np.mean(mo_bmean[imesind_rise])], color='darkgrey', linestyle='-', markersize=0) 
+plt.plot_date( [risestart,riseend], [np.mean(mo_bmean[iwinind_rise]), \
+               np.mean(mo_bmean[iwinind_rise])], color='mediumseagreen', linestyle='-',markersize=0 ) 
+plt.plot_date( [risestart,riseend], [np.mean(mo_bmean[ivexind_rise]), \
+               np.mean(mo_bmean[ivexind_rise])], color='orange', linestyle='-', markersize=0) 
+plt.plot_date( [risestart,riseend], [np.mean(mo_bmean[imesind_rise]), \
+               np.mean(mo_bmean[imesind_rise])], color='darkgrey', linestyle='-', markersize=0) 
 
-plt.plot_date( [maxstart,maxend], [np.mean(mo_bmean[iwinind_max]),np.mean(mo_bmean[iwinind_max])], color='mediumseagreen', linestyle='-',markersize=0 ) 
-plt.plot_date( [maxstart,maxend], [np.mean(mo_bmean[ivexind_max]),np.mean(mo_bmean[ivexind_max])], color='orange', linestyle='-', markersize=0) 
-plt.plot_date( [maxstart,maxend], [np.mean(mo_bmean[imesind_max]),np.mean(mo_bmean[imesind_max])], color='darkgrey', linestyle='-', markersize=0) 
+plt.plot_date( [maxstart,maxend], [np.mean(mo_bmean[iwinind_max]), \
+               np.mean(mo_bmean[iwinind_max])], color='mediumseagreen', linestyle='-',markersize=0 ) 
+plt.plot_date( [maxstart,maxend], [np.mean(mo_bmean[ivexind_max]), \
+               np.mean(mo_bmean[ivexind_max])], color='orange', linestyle='-', markersize=0) 
+plt.plot_date( [maxstart,maxend], [np.mean(mo_bmean[imesind_max]), \
+               np.mean(mo_bmean[imesind_max])], color='darkgrey', linestyle='-', markersize=0) 
 
 
 plt.ylabel('Magnetic field in MO [nT]', fontsize=fsize)
@@ -758,16 +795,6 @@ plt.xticks(fontsize=fsize)
 plt.legend(loc=1,fontsize=fsize-1)
 
 
-#sets planet / spacecraft labels
-#xoff=0.15
-#yoff=0.8
-#plt.figtext(xoff,yoff,'Earth L1',color='mediumseagreen', fontsize=fsize, ha='left')
-#plt.figtext(xoff,yoff-0.03*1,'VEX',color='orange', fontsize=fsize, ha='left')
-#plt.figtext(xoff,yoff-0.03*2,'MESSENGER',color='dimgrey', fontsize=fsize, ha='left')
-#plt.figtext(xoff,yoff-0.03*3,'STEREO-A',color='red', fontsize=fsize, ha='left')
-#plt.figtext(xoff,yoff-0.03*4,'STEREO-B',color='royalblue', fontsize=fsize, ha='left')
-#plt.figtext(xoff,yoff-0.03*5,'MAVEN',color='steelblue', fontsize=fsize, ha='left')
-
 
 plt.tight_layout()
 plt.savefig('plots/icme_total_field_distance_time_paper.pdf', dpi=300)
@@ -784,7 +811,8 @@ print('Magnetic field B MO_BMEAN results, mean +/- std [nT]')
 
 print()
 print('Mercury ', round(np.mean(mo_bmean[imercind]),1),' +/- ', round(np.std(mo_bmean[imercind]),1))
-print('min     ', round(np.mean(mo_bmean[imercind_min]),1), ' +/- ', round(np.std(mo_bmean[imercind_min]),1))
+#print('min     ', round(np.mean(mo_bmean[imercind_min]),1), ' +/- ', round(np.std(mo_bmean[imercind_min]),1))
+print('min      no events')
 print('rise    ', round(np.mean(mo_bmean[imercind_rise]),1), ' +/- ', round(np.std(mo_bmean[imercind_rise]),1))
 print('max     ', round(np.mean(mo_bmean[imercind_max]),1), ' +/- ', round(np.std(mo_bmean[imercind_max]),1))
 
@@ -860,7 +888,7 @@ print('decl    ',round(np.mean(mo_bmean[imavind]),1),' +/- ', round(np.std(mo_bm
 #################################### (3) time spent inside ICMEs, in % ############################
 print()
 print('-------------------------------------------------')
-print('3 Time spent inside CMEs for each planet, 2 panels')
+print('3 Time spent inside CMEs for each planet, 3 panels')
 print()
 
 
@@ -917,6 +945,8 @@ yearly_mid_times=[mdates.date2num(sunpy.time.parse_time('2007-07-01')),
 
 #converted times of the original data are here:
 [vex_time,wind_time,sta_time,stb_time,mav_time,mes_time]=pickle.load( open( "../catpy/DATACAT/insitu_times_mdates_maven_interp.p", "rb" ) )
+
+
 sta= pickle.load( open( "../catpy/DATACAT/STA_2007to2015_SCEQ.p", "rb" ) )
 stb= pickle.load( open( "../catpy/DATACAT/STB_2007to2014_SCEQ.p", "rb" ) )
 wind=pickle.load( open( "../catpy/DATACAT/WIND_2007to2018_HEEQ_plasma_median21.p", "rb" ) )
@@ -931,6 +961,10 @@ total_data_days_wind=np.zeros(np.size(yearly_mid_times))
 total_data_days_wind.fill(np.nan)
 
 
+
+
+
+sys.exit()
 
 #go through each year and search for data gaps, ok for solar wind missions 
 
