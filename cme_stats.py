@@ -477,8 +477,8 @@ plt.figtext(0.01,0.98,'a',color='black', fontsize=fsize, ha='left',fontweight='b
 plt.figtext(0.01,0.485,'b',color='black', fontsize=fsize, ha='left',fontweight='bold')
 
 plt.show()
-plt.savefig('plots/icme_durations_distance_time_paper.pdf', dpi=300)
-plt.savefig('plots/icme_durations_distance_time_paper.png', dpi=300)
+plt.savefig('plots_stats/icme_durations_distance_time_paper.pdf', dpi=300)
+plt.savefig('plots_stats/icme_durations_distance_time_paper.png', dpi=300)
 
 
 
@@ -797,8 +797,8 @@ plt.legend(loc=1,fontsize=fsize-1)
 
 
 plt.tight_layout()
-plt.savefig('plots/icme_total_field_distance_time_paper.pdf', dpi=300)
-plt.savefig('plots/icme_total_field_distance_time_paper.png', dpi=300)
+plt.savefig('plots_stats/icme_total_field_distance_time_paper.pdf', dpi=300)
+plt.savefig('plots_stats/icme_total_field_distance_time_paper.png', dpi=300)
 
 
 
@@ -1865,8 +1865,8 @@ plt.ylim((0,25))
 plt.tight_layout()
 
 plt.show()
-plt.savefig('plots/time_inside_CMEs_paper.pdf', dpi=300)
-plt.savefig('plots/time_inside_CMEs_paper.png', dpi=300)
+plt.savefig('plots_stats/time_inside_CMEs_paper.pdf', dpi=300)
+plt.savefig('plots_stats/time_inside_CMEs_paper.png', dpi=300)
 
 
 
@@ -2095,8 +2095,8 @@ histstb=histstb/total_data_days_stb*365
 histmav=histmav/total_data_days_mav*365
 
 binedges=bin_edgeswin
-pickle.dump([binedges,histwin,histvex,histmes,histsta,histstb,histmav], open( "plots/icme_frequency.p", "wb" ), protocol=2 )
-#[binedges,histwin,histvex,histmes,histsta,histstb,histmav]=pickle.load( open( "plots/stats/icme_frequency.p", "rb" ) )
+pickle.dump([binedges,histwin,histvex,histmes,histsta,histstb,histmav], open( "plots_stats/icme_frequency.p", "wb" ), protocol=2 )
+#[binedges,histwin,histvex,histmes,histsta,histstb,histmav]=pickle.load( open( "plots_stats/stats/icme_frequency.p", "rb" ) )
 
 #binweite=45
 ax2.bar(bin_edgeswin[:-1]+30,histwin, width=binweite,color='mediumseagreen', alpha=0.5)
@@ -2162,8 +2162,8 @@ plt.tight_layout()
 
 #sns.despine()
 plt.show()
-plt.savefig('plots/ICME_frequency_paper.pdf', dpi=300)
-plt.savefig('plots/ICME_frequency_paper.png', dpi=300)
+plt.savefig('plots_stats/ICME_frequency_paper.pdf', dpi=300)
+plt.savefig('plots_stats/ICME_frequency_paper.png', dpi=300)
 
 
 
