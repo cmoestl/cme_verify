@@ -34,6 +34,7 @@ from cme_stats_module import decode_array
 from cme_stats_module import time_to_num_cat
 from cme_stats_module import gaussian
 from cme_stats_module import get_omni2_data
+from cme_stats_module import load_url_current_directory
 
 
 #ignore warnings
@@ -97,17 +98,13 @@ print(pos.keys())
 print()
 
 
-# if not here download OMNI2 data (only needed first time running the program, currently 155 MB)
-if not os.path.exists('omni2_all_years.dat'):
 
-  #see http://omniweb.gsfc.nasa.gov/html/ow_data.html
-  print('download OMNI2 data from')
-  omni2_url='ftp://nssdcftp.gsfc.nasa.gov/pub/data/omni/low_res_omni/omni2_all_years.dat'
-  print(omni2_url)
-  try: urllib.request.urlretrieve(omni2_url, 'omni2_all_years.dat')
-  except urllib.error.URLError as e:
-      print(' ', omni2_url,' ',e.reason)
 
+
+########## LOAD OMNI2 data for sunspot data
+load_url_current_directory('omni2_all_years.dat', \
+        'ftp://nssdcftp.gsfc.nasa.gov/pub/data/omni/low_res_omni/omni2_all_years.dat')
+        
 #if omni2 hourly data is not yet converted and saved as pickle, do it:
 if not os.path.exists('omni2_all_years_pickle.p'):
  #load OMNI2 dataset from .dat file with a function from dst_module.py
@@ -115,9 +112,30 @@ if not os.path.exists('omni2_all_years_pickle.p'):
  #contains: o. time,day,hour,btot,bx,by,bz,bygsm,bzgsm,speed,speedx,den,pdyn,dst,kp
  #save for faster loading later
  pickle.dump(o, open('omni2_all_years_pickle.p', 'wb') )
-
 else:  o=pickle.load(open('omni2_all_years_pickle.p', 'rb') )
 print('loaded OMNI2 data')
+
+
+
+
+
+######## load a file with the time and B total of the original in situ data, 
+#to be used in part (3)  - has 355 MB to download
+#STA, STB, Wind, MES, VEX, MAVEN
+load_url_current_directory('insitu_data_time_btot_moestl_2019_paper.p', \
+                     'https://oeawcloud.oeaw.ac.at/index.php/s/z7nZVbH8qBjaTf5/download')
+
+#info for myself: file insitu_data_time_btot_moestl_2019_paper.p
+#was done with program extract_data in process_data package (not on github)
+
+[win_time,win_btot,sta_time,sta_btot,stb_time,stb_btot, \
+mav_time, mav_btot, vex_time, vex_btot, mes_time, mes_btot]= \
+pickle.load(open( "insitu_data_time_btot_moestl_2019_paper.p", "rb" ) )
+
+print('loaded time/Btotal data for STEREO-A/B, Wind, VEX, MESSENGER, MAVEN')
+
+
+
 
 ########################### get all parameters from ICMECAT for easier handling
 # id for each event
@@ -887,19 +905,14 @@ print('decl    ',round(np.mean(mo_bmean[imavind]),1),' +/- ', round(np.std(mo_bm
 
 
 
-#################################### (3) time spent inside ICMEs, in % ############################
+############### (3) TIME SPENT INSIDE CMEs in %, as function of solar cycle ##############
 print()
 print('-------------------------------------------------')
-print('3 Time spent inside CMEs for each planet, 3 panels')
+print('3 Time spent inside CMEs for each planet, 3 figure panels')
 print()
 
 
-
-sns.set_context("talk")     
-sns.set_style("ticks",{'grid.linestyle': '--'})
-
-
-#make bin for each year
+#make bin for each year for yearly histograms
 
 yearly_start_times=[mdates.date2num(sunpy.time.parse_time('2007-01-01')),
                   mdates.date2num(sunpy.time.parse_time('2008-01-01')),
@@ -910,7 +923,8 @@ yearly_start_times=[mdates.date2num(sunpy.time.parse_time('2007-01-01')),
                   mdates.date2num(sunpy.time.parse_time('2013-01-01')),
                   mdates.date2num(sunpy.time.parse_time('2014-01-01')),
                   mdates.date2num(sunpy.time.parse_time('2015-01-01')),
-                  mdates.date2num(sunpy.time.parse_time('2016-01-01'))]
+                  mdates.date2num(sunpy.time.parse_time('2016-01-01')),
+                  mdates.date2num(sunpy.time.parse_time('2017-01-01'))]
                   
 yearly_end_times=[mdates.date2num(sunpy.time.parse_time('2007-12-31')),
                   mdates.date2num(sunpy.time.parse_time('2008-12-31')),
@@ -921,7 +935,8 @@ yearly_end_times=[mdates.date2num(sunpy.time.parse_time('2007-12-31')),
                   mdates.date2num(sunpy.time.parse_time('2013-12-31')),
                   mdates.date2num(sunpy.time.parse_time('2014-12-31')),
                   mdates.date2num(sunpy.time.parse_time('2015-12-31')),
-                  mdates.date2num(sunpy.time.parse_time('2016-12-31'))]
+                  mdates.date2num(sunpy.time.parse_time('2016-12-31')),
+                  mdates.date2num(sunpy.time.parse_time('2017-12-31'))]
 
 yearly_mid_times=[mdates.date2num(sunpy.time.parse_time('2007-07-01')),
                   mdates.date2num(sunpy.time.parse_time('2008-07-01')),
@@ -932,314 +947,122 @@ yearly_mid_times=[mdates.date2num(sunpy.time.parse_time('2007-07-01')),
                   mdates.date2num(sunpy.time.parse_time('2013-07-01')),
                   mdates.date2num(sunpy.time.parse_time('2014-07-01')),
                   mdates.date2num(sunpy.time.parse_time('2015-07-01')),
-                  mdates.date2num(sunpy.time.parse_time('2016-07-01'))]
+                  mdates.date2num(sunpy.time.parse_time('2016-07-01')),
+                  mdates.date2num(sunpy.time.parse_time('2017-07-01'))]
 
 
-#***check further : for each year, calculate how much data is NaN for each spacecraft
-#and use in calculation
+########### 1a Determine SOLAR WIND ONLY MISSIONS STA, STB, Wind
+########### all are available in 1 minute time resolution 
+
+#define arrays and fill with nan
+total_data_days_yearly_win=np.zeros(np.size(yearly_mid_times))
+total_data_days_yearly_win.fill(np.nan)
+
+total_data_days_yearly_sta=np.zeros(np.size(yearly_mid_times))
+total_data_days_yearly_sta.fill(np.nan)
+
+total_data_days_yearly_stb=np.zeros(np.size(yearly_mid_times))
+total_data_days_yearly_stb.fill(np.nan)
+
+total_data_days_yearly_mes=np.zeros(np.size(yearly_mid_times))
+total_data_days_yearly_mes.fill(np.nan)
+
+total_data_days_yearly_merc=np.zeros(np.size(yearly_mid_times))
+total_data_days_yearly_merc.fill(np.nan)
+
+total_data_days_yearly_vex=np.zeros(np.size(yearly_mid_times))
+total_data_days_yearly_vex.fill(np.nan)
+
+total_data_days_yearly_mav=np.zeros(np.size(yearly_mid_times))
+total_data_days_yearly_mav.fill(np.nan)
 
 
-#redo file:
-#converted times of the original data are here:
-#[vex_time,win_time,sta_time,stb_time,mav_time,mes_time]=pickle.load( open( "../catpy/DATACAT/insitu_times_mdates_maven_interp.p", "rb" ) )
-#sta= pickle.load( open( "../catpy/DATACAT/STA_2007to2015_SCEQ.p", "rb" ) )
-#stb= pickle.load( open( "../catpy/DATACAT/STB_2007to2014_SCEQ.p", "rb" ) )
-#wind=pickle.load( open( "../catpy/DATACAT/WIND_2007to2018_HEEQ_plasma_median21.p", "rb" ) )
-
-
-[win_time,win_btot,sta_time,sta_btot,stb_time,stb_btot, \
-mav_time, mav_btot, vex_time, vex_btot, mes_time, mes_btot]= \
-pickle.load(open( "../catpy/DATACAT/insitu_data_time_btot_moestl_2019_paper.p", "rb" ) )
-
-
-total_data_days_sta=np.zeros(np.size(yearly_mid_times))
-total_data_days_sta.fill(np.nan)
-
-total_data_days_stb=np.zeros(np.size(yearly_mid_times))
-total_data_days_stb.fill(np.nan)
-
-total_data_days_wind=np.zeros(np.size(yearly_mid_times))
-total_data_days_wind.fill(np.nan)
-
-
-
-
-
-#go through each year and search for data gaps, ok for solar wind missions 
+#go through each year and search for available data
+#time is available for all dates, so no NaNs in time
+#all NaNs in Btotal variable
 
 for i in range(np.size(yearly_mid_times)):
- 
-  #Wind
+
+  #Wind index for this year  
   thisyear=np.where(np.logical_and((win_time > yearly_start_times[i]),(win_time < yearly_end_times[i])))
-  nan=np.isnan(win_btot[thisyear]) 
-  notnan=np.where(nan == False)
-  if np.size(notnan) >0: total_data_days_wind[i]=365
-  if np.size(nan) > 0: total_data_days_wind[i]=np.size(notnan)/np.size(nan)*365
-  
-  #STA
+  #get np.size of available data for each year
+  datas=np.size(np.where(np.isnan(win_btot[thisyear])==False))
+  #wind is  in 1 minute resolution
+  min_in_days=1/(60*24)
+  #calculate available days from number of datapoints (each 1 minute) 
+  #divided by number of minutes in 1 days
+  #this should only be the case if data is available this year, otherwise set to NaN
+  if datas >0: total_data_days_yearly_win[i]=datas*min_in_days
+
+  #same for STEREO-A
   thisyear=np.where(np.logical_and((sta_time > yearly_start_times[i]),(sta_time < yearly_end_times[i])))
-  nan=np.isnan(sta_btot[thisyear]) 
-  notnan=np.where(nan == False)
-  if np.size(notnan) >0: total_data_days_sta[i]=365
-  if np.size(nan) > 0: total_data_days_sta[i]=np.size(notnan)/np.size(nan)*365
+  datas=np.size(np.where(np.isnan(sta_btot[thisyear])==False))
+  if datas >0: total_data_days_yearly_sta[i]=datas*min_in_days
 
-  #STB
+  #same for STEREO-B
   thisyear=np.where(np.logical_and((stb_time > yearly_start_times[i]),(stb_time < yearly_end_times[i])))
-  nan=np.isnan(stb_btot[thisyear]) 
-  notnan=np.where(nan == False)
-  if np.size(notnan) >0: total_data_days_stb[i]=365
-  if np.size(nan) > 0: total_data_days_stb[i]=np.size(notnan)/np.size(nan)*365
-
-#for MESSENGER; VEX, MAVEN this is not correct because the nans during orbits are counted; 
-#thats why we search manually for longer data gaps, and manually set the total_data_days_vex for each year
-
-
-
-
-##################longer data gaps for MESSENGER and Mercury
-total_data_days_mes=np.zeros(np.size(yearly_mid_times))
-total_data_days_mes.fill(np.nan)
-
-total_data_days_merc=np.zeros(np.size(yearly_mid_times))
-total_data_days_merc.fill(np.nan)
-#total_data_days_mes.fill(365)
-
-#2007
-
-jump1beg=mdates.date2num(sunpy.time.parse_time('2007-Jan-1'))
-jump1end=mdates.date2num(sunpy.time.parse_time('2007-Mar-31'))
-
-jump2beg=mdates.date2num(sunpy.time.parse_time('2007-Jul-1'))
-jump2end=mdates.date2num(sunpy.time.parse_time('2007-Jul-21'))
-
-jump3beg=mdates.date2num(sunpy.time.parse_time('2007-Aug-25'))
-jump3end=mdates.date2num(sunpy.time.parse_time('2007-Dec-21'))
-
-total_data_days_mes[0]=yearly_end_times[0]-yearly_start_times[0]-(jump1end-jump1beg)-(jump2end-jump2beg)-(jump3end-jump3beg)
-
-#2008
-jump1beg=mdates.date2num(sunpy.time.parse_time('2008-Feb-24'))
-jump1end=mdates.date2num(sunpy.time.parse_time('2008-Dec-31'))
-#data gap too long - set nan
-total_data_days_mes[1]=np.nan
-
-
-#2009
-jump1beg=mdates.date2num(sunpy.time.parse_time('2009-Jan-01'))
-jump1end=mdates.date2num(sunpy.time.parse_time('2009-Jan-12'))
-
-jump2beg=mdates.date2num(sunpy.time.parse_time('2009-Jul-08'))
-jump2end=mdates.date2num(sunpy.time.parse_time('2009-Jul-22'))
-
-jump3beg=mdates.date2num(sunpy.time.parse_time('2009-Aug-18'))
-jump3end=mdates.date2num(sunpy.time.parse_time('2009-Aug-24'))
-
-jump4beg=mdates.date2num(sunpy.time.parse_time('2009-Sep-01'))
-jump4end=mdates.date2num(sunpy.time.parse_time('2009-Sep-04'))
-
-jump5beg=mdates.date2num(sunpy.time.parse_time('2009-Sep-30'))
-jump5end=mdates.date2num(sunpy.time.parse_time('2009-Oct-02'))
-
-jump6beg=mdates.date2num(sunpy.time.parse_time('2009-Oct-13'))
-jump6end=mdates.date2num(sunpy.time.parse_time('2009-Dec-10'))
-
-total_data_days_mes[2]=yearly_end_times[2]-yearly_start_times[2]-(jump1end-jump1beg)-(jump2end-jump2beg)-(jump3end-jump3beg)-(jump4end-jump4beg)-(jump5end-jump5beg)-(jump6end-jump6beg)
-
-#2010
-total_data_days_mes[3]=yearly_end_times[3]-yearly_start_times[3]
-
-#2011
-jump1beg=mdates.date2num(sunpy.time.parse_time('2011-Mar-16'))
-jump1end=mdates.date2num(sunpy.time.parse_time('2011-Mar-24'))
-
-jump2beg=mdates.date2num(sunpy.time.parse_time('2011-Jan-01'))
-jump2end=mdates.date2num(sunpy.time.parse_time('2011-Mar-24'))
-
-total_data_days_merc[4]=yearly_end_times[4]-yearly_start_times[4]-(jump2end-jump2beg)
-total_data_days_mes[4]=yearly_end_times[4]-yearly_start_times[4]-(jump1end-jump1beg)
-
-
-#2012
-jump1beg=mdates.date2num(sunpy.time.parse_time('2012-Jun-06'))
-jump1end=mdates.date2num(sunpy.time.parse_time('2012-Jun-13'))
-
-total_data_days_merc[5]=yearly_end_times[5]-yearly_start_times[5]-(jump1end-jump1beg)
-total_data_days_mes[5]=yearly_end_times[5]-yearly_start_times[5]-(jump1end-jump1beg)
-
-#2013
-jump1beg=mdates.date2num(sunpy.time.parse_time('2013-Apr-01'))
-jump1end=mdates.date2num(sunpy.time.parse_time('2013-May-01'))
-
-
-total_data_days_merc[6]=yearly_end_times[6]-yearly_start_times[6]-(jump1end-jump1beg)
-total_data_days_mes[6]=yearly_end_times[6]-yearly_start_times[6]-(jump1end-jump1beg)
-
-
-#2014
-jump1beg=mdates.date2num(sunpy.time.parse_time('2014-Feb-25'))
-jump1end=mdates.date2num(sunpy.time.parse_time('2014-Mar-26'))
-
-total_data_days_merc[7]=yearly_end_times[7]-yearly_start_times[7]-(jump1end-jump1beg)
-total_data_days_mes[7]=yearly_end_times[7]-yearly_start_times[7]-(jump1end-jump1beg)
-
-#2015
-jump1beg=mdates.date2num(sunpy.time.parse_time('2015-Apr-30'))
-jump1end=mdates.date2num(sunpy.time.parse_time('2015-Dec-31'))
-
-total_data_days_merc[8]=yearly_end_times[8]-yearly_start_times[8]-(jump1end-jump1beg)
-
-total_data_days_mes[8]=yearly_end_times[8]-yearly_start_times[8]-(jump1end-jump1beg)
-
-
-
-
-
-############################ MAVEN
-
-startdata=mdates.date2num(sunpy.time.parse_time('2014-Nov-27'))
-
-#2015
-jump1beg=mdates.date2num(sunpy.time.parse_time('2015-Mar-8'))
-jump1end=mdates.date2num(sunpy.time.parse_time('2015-Jun-17'))
-
-jump2beg=mdates.date2num(sunpy.time.parse_time('2015-Oct-3'))
-jump2end=mdates.date2num(sunpy.time.parse_time('2015-Dec-18'))
-
-#2016
-jump3beg=mdates.date2num(sunpy.time.parse_time('2016-Mar-27'))
-jump3end=mdates.date2num(sunpy.time.parse_time('2016-Jun-3'))
-
-jump4beg=mdates.date2num(sunpy.time.parse_time('2016-Sep-30'))
-jump4end=mdates.date2num(sunpy.time.parse_time('2016-Dec-6'))
-
-enddata=mdates.date2num(sunpy.time.parse_time('2016-Dec-31'))
-
-total_data_days_mav=np.zeros(np.size(yearly_mid_times))
-total_data_days_mav.fill(np.nan)
-
-#this is 2014 - too few data points MAVEN (only 1 month)
-#total_data_days_mav[7]=yearly_end_times[7]-startdata
-total_data_days_mav[7]=np.nan
-
-
-#this is 2015
-total_data_days_mav[8]=yearly_end_times[8]-yearly_start_times[8]-(jump1end-jump1beg)-(jump2end-jump2beg)
-
-
-#this is 2016
-total_data_days_mav[9]=yearly_end_times[9]-yearly_start_times[9]-(jump3end-jump3beg)-(jump4end-jump4beg)
-
-
-
-
-
-
-#################VEX 
-total_data_days_vex=np.zeros(np.size(yearly_mid_times))
-total_data_days_vex.fill(np.nan)
-
-
-#times of longer data gaps
-
-#2007
-#from Jan 1 - Apr 1 there is not data gap
-
-jump1beg=mdates.date2num(sunpy.time.parse_time('2007-Jul-5'))
-jump1end=mdates.date2num(sunpy.time.parse_time('2007-Jul-12'))
-
-jump2beg=mdates.date2num(sunpy.time.parse_time('2007-Aug-23'))
-jump2end=mdates.date2num(sunpy.time.parse_time('2007-Aug-28'))
-
-jump3beg=mdates.date2num(sunpy.time.parse_time('2007-Sep-18'))
-jump3end=mdates.date2num(sunpy.time.parse_time('2007-Sep-20'))
-
-total_data_days_vex[0]=yearly_end_times[0]-yearly_start_times[0]-(jump1end-jump1beg)-(jump2end-jump2beg)-(jump3end-jump3beg)
-
-
-#2008
-jump1beg=mdates.date2num(sunpy.time.parse_time('2008-May-28'))
-jump1end=mdates.date2num(sunpy.time.parse_time('2008-Jun-21'))
-
-total_data_days_vex[1]=yearly_end_times[1]-yearly_start_times[1]-(jump1end-jump1beg)
-
-#2009
-jump1beg=mdates.date2num(sunpy.time.parse_time('2009-Apr-17'))
-jump1end=mdates.date2num(sunpy.time.parse_time('2009-Apr-28'))
-jump2beg=mdates.date2num(sunpy.time.parse_time('2009-Dec-28'))
-jump2end=mdates.date2num(sunpy.time.parse_time('2009-Dec-31'))
-
-total_data_days_vex[2]=yearly_end_times[2]-yearly_start_times[2]-(jump1end-jump1beg)-(jump2end-jump2beg)
-
-
-
-#2010
-jump1beg=mdates.date2num(sunpy.time.parse_time('2010-Jan-01'))
-jump1end=mdates.date2num(sunpy.time.parse_time('2010-Jan-23'))
-
-jump2beg=mdates.date2num(sunpy.time.parse_time('2010-Apr-12'))
-jump2end=mdates.date2num(sunpy.time.parse_time('2010-Apr-17'))
-
-total_data_days_vex[3]=yearly_end_times[3]-yearly_start_times[3]-(jump1end-jump1beg)-(jump2end-jump2beg)
-
-
-#2011
-jump1beg=mdates.date2num(sunpy.time.parse_time('2011-Jan-24'))
-jump1end=mdates.date2num(sunpy.time.parse_time('2011-Jan-27'))
-
-jump2beg=mdates.date2num(sunpy.time.parse_time('2011-Aug-05'))
-jump2end=mdates.date2num(sunpy.time.parse_time('2011-Sep-01'))
-total_data_days_vex[4]=yearly_end_times[4]-yearly_start_times[4]-(jump1end-jump1beg)-(jump2end-jump2beg)
-
-
-#2012
-jump1beg=mdates.date2num(sunpy.time.parse_time('2012-Mar-10'))
-jump1end=mdates.date2num(sunpy.time.parse_time('2012-Mar-12'))
-
-jump2beg=mdates.date2num(sunpy.time.parse_time('2012-Jun-04'))
-jump2end=mdates.date2num(sunpy.time.parse_time('2012-Jun-07'))
-
-jump3beg=mdates.date2num(sunpy.time.parse_time('2012-Jul-13'))
-jump3end=mdates.date2num(sunpy.time.parse_time('2012-Jul-15'))
-
-jump4beg=mdates.date2num(sunpy.time.parse_time('2012-Dec-29'))
-jump4end=mdates.date2num(sunpy.time.parse_time('2012-Dec-31'))
-
-total_data_days_vex[5]=yearly_end_times[5]-yearly_start_times[5]-(jump1end-jump1beg)-(jump2end-jump2beg)-(jump3end-jump3beg) -(jump4end-jump4beg)
-
-
-#2013
-jump1beg=mdates.date2num(sunpy.time.parse_time('2013-Mar-17'))
-jump1end=mdates.date2num(sunpy.time.parse_time('2013-Apr-14'))
-total_data_days_vex[6]=yearly_end_times[6]-yearly_start_times[6]-(jump1end-jump1beg)
-
-
-#2014
-jump1beg=mdates.date2num(sunpy.time.parse_time('2014-Feb-25'))
-jump1end=mdates.date2num(sunpy.time.parse_time('2014-Mar-26'))
-
-jump2beg=mdates.date2num(sunpy.time.parse_time('2014-May-16'))
-jump2end=mdates.date2num(sunpy.time.parse_time('2014-May-21'))
-
-jump3beg=mdates.date2num(sunpy.time.parse_time('2014-Jul-12'))
-jump3end=mdates.date2num(sunpy.time.parse_time('2014-Jul-21'))
-
-jump4beg=mdates.date2num(sunpy.time.parse_time('2014-Oct-13'))
-jump4end=mdates.date2num(sunpy.time.parse_time('2014-Nov-11'))
-
-jump5beg=mdates.date2num(sunpy.time.parse_time('2014-Nov-26'))
-jump5end=mdates.date2num(sunpy.time.parse_time('2014-Dec-31'))
-
-total_data_days_vex[7]=yearly_end_times[7]-yearly_start_times[7]-(jump1end-jump1beg)-(jump2end-jump2beg) -(jump3end-jump3beg) -(jump4end-jump4beg) -(jump5end-jump5beg)
-
-
-
-
-#drop ulysses because too short, so 6 spacecraft
-
-#make array with inside percentage
-
-inside_wind_perc=np.zeros(np.size(yearly_mid_times))
-inside_wind_perc.fill(np.nan)
+  datas=np.size(np.where(np.isnan(stb_btot[thisyear])==False))
+  if datas >0: total_data_days_yearly_stb[i]=datas*min_in_days
+
+  #same for MESSENGER
+  thisyear=np.where(np.logical_and((mes_time > yearly_start_times[i]),(mes_time < yearly_end_times[i])))
+  datas=np.size(np.where(np.isnan(mes_btot[thisyear])==False))
+  if datas >0: total_data_days_yearly_mes[i]=datas*min_in_days
+
+  #same for Mercury alone
+  #start with 2011
+  if i == 4: 
+   thisyear=np.where(np.logical_and((mes_time > mdates.date2num(sunpy.time.parse_time('2011-03-18'))),(mes_time < yearly_end_times[i])))
+   datas=np.size(np.where(np.isnan(mes_btot[thisyear])==False))
+   if datas >0: total_data_days_yearly_merc[i]=datas*min_in_days
+  #2012 onwards 
+  if i > 4: 
+   thisyear=np.where(np.logical_and((mes_time > yearly_start_times[i]),(mes_time < yearly_end_times[i])))
+   datas=np.size(np.where(np.isnan(mes_btot[thisyear])==False))
+   if datas >0: total_data_days_yearly_merc[i]=datas*min_in_days
+   
+   
+
+
+  #same for VEX
+  thisyear=np.where(np.logical_and((vex_time > yearly_start_times[i]),(vex_time < yearly_end_times[i])))
+  datas=np.size(np.where(np.isnan(vex_btot[thisyear])==False))
+  if datas >0: total_data_days_yearly_vex[i]=datas*min_in_days
+
+  #for MAVEN different time resolution
+  thisyear=np.where(np.logical_and((mav_time > yearly_start_times[i]),(mav_time < yearly_end_times[i])))
+  datas=np.size(np.where(np.isnan(mav_btot[thisyear])==False))
+  datas_ind=np.where(np.isnan(mav_btot[thisyear])==False)
+  #sum all time intervals for existing data points, but avoid counting gaps where diff is > 1 orbit (0.25 days)
+  alldiff=np.diff(mav_time[datas_ind])
+  smalldiff_ind=np.where(alldiff <0.25)  
+  if datas >0: total_data_days_yearly_mav[i]=np.sum(alldiff[smalldiff_ind])
+
+print('Data days each year:')
+
+print()
+print('Wind')
+print(np.round(total_data_days_yearly_win,1))
+print('STA')
+print(np.round(total_data_days_yearly_sta,1))
+print('STB')
+print(np.round(total_data_days_yearly_stb,1))
+print('MERCURY')
+print(np.round(total_data_days_yearly_merc,1))
+print('MES')
+print(np.round(total_data_days_yearly_mes,1))
+print('VEX')
+print(np.round(total_data_days_yearly_vex,1))
+print('MAV')
+print(np.round(total_data_days_yearly_mav,1))
+
+
+
+
+################################# make array for time inside percentages
+
+inside_win_perc=np.zeros(np.size(yearly_mid_times))
+inside_win_perc.fill(np.nan)
 
 inside_sta_perc=np.zeros(np.size(yearly_mid_times))
 inside_sta_perc.fill(np.nan)
@@ -1258,6 +1081,126 @@ inside_vex_perc.fill(np.nan)
 
 inside_mav_perc=np.zeros(np.size(yearly_mid_times))
 inside_mav_perc.fill(np.nan)
+
+
+
+
+
+#check for each spacecraft and all data points if it is inside an ICME save results as pickle
+
+#get all win_btot correct data indices -> 
+win_data_ind=np.where(np.isnan(win_btot)==False)
+win_icme_ind=np.zeros(0)
+#Wind: go through each icme
+for i in np.arange(np.size(icme_start_time_num[iwinind])): 
+    this_icme_ind=np.where(np.logical_and( (win_time[win_data_ind] > icme_start_time_num[iwinind][i]),win_time[win_data_ind] < icme_end_time_num[iwinind][i] ))[0]
+    win_icme_ind=np.append(win_icme_ind,this_icme_ind)	
+print('Wind inside ICMEs full average:',(np.size(win_icme_ind)/np.size(win_data_ind)*100))
+
+
+sta_data_ind=np.where(np.isnan(sta_btot)==False)
+sta_icme_ind=np.zeros(0)
+#stad: go through each icme
+for i in np.arange(np.size(icme_start_time_num[istaind])): 
+    this_icme_ind=np.where(np.logical_and( (sta_time[sta_data_ind] > icme_start_time_num[istaind][i]),sta_time[sta_data_ind] < mo_end_time_num[istaind][i] ))[0]
+    sta_icme_ind=np.append(sta_icme_ind,this_icme_ind)	
+print('sta inside ICMEs full average:',(np.size(sta_icme_ind)/np.size(sta_data_ind)*100))
+
+
+
+#get all stb_btot correct data indices -> 
+stb_data_ind=np.where(np.isnan(stb_btot)==False)
+stb_icme_ind=np.zeros(0)
+#stbd: go through each icme
+for i in np.arange(np.size(icme_start_time_num[istbind])): 
+    this_icme_ind=np.where(np.logical_and( (stb_time[stb_data_ind] > icme_start_time_num[istbind][i]),stb_time[stb_data_ind] < mo_end_time_num[istbind][i] ))[0]
+    stb_icme_ind=np.append(stb_icme_ind,this_icme_ind)	
+print('stbd inside ICMEs full average:',(np.size(stb_icme_ind)/np.size(stb_data_ind)*100))
+
+
+
+#get all vex_btot correct data indices -> 
+vex_data_ind=np.where(np.isnan(vex_btot)==False)
+vex_icme_ind=np.zeros(0)
+#vexd: go through each icme
+for i in np.arange(np.size(icme_start_time_num[ivexind])): 
+    this_icme_ind=np.where(np.logical_and( (vex_time[vex_data_ind] > icme_start_time_num[ivexind][i]),vex_time[vex_data_ind] < mo_end_time_num[ivexind][i] ))[0]
+    vex_icme_ind=np.append(vex_icme_ind,this_icme_ind)	
+print('vexd inside ICMEs full average:',(np.size(vex_icme_ind)/np.size(vex_data_ind)*100))
+
+
+
+
+#get all mes_btot correct data indices -> 
+mes_data_ind=np.where(np.isnan(mes_btot)==False)
+mes_icme_ind=np.zeros(0)
+#mesd: go through each icme
+for i in np.arange(np.size(icme_start_time_num[imesind])): 
+    this_icme_ind=np.where(np.logical_and( (mes_time[mes_data_ind] > icme_start_time_num[imesind][i]),mes_time[mes_data_ind] < mo_end_time_num[imesind][i] ))[0]
+    mes_icme_ind=np.append(mes_icme_ind,this_icme_ind)	
+print('mesd inside ICMEs full average:',(np.size(mes_icme_ind)/np.size(mes_data_ind)*100))
+
+
+#******************************************************* only after orbit ins
+#get all merc_btot correct data indices -> 
+merc_data_ind=np.where(np.isnan(mes_btot)==False)
+merc_icme_ind=np.zeros(0)
+#mercd: go through each icme
+for i in np.arange(np.size(icme_start_time_num[imercind])): 
+    this_icme_ind=np.where(np.logical_and( (mes_time[merc_data_ind] > icme_start_time_num[imercind][i]),mes_time[merc_data_ind] < mo_end_time_num[imercind][i] ))[0]
+    merc_icme_ind=np.append(merc_icme_ind,this_icme_ind)	
+print('mercd inside ICMEs full average:',(np.size(merc_icme_ind)/np.size(merc_data_ind)*100))
+
+
+#get all mav_btot correct data indices -> 
+mav_data_ind=np.where(np.isnan(mav_btot)==False)
+mav_icme_ind=np.zeros(0)
+#mavd: go through each icme
+for i in np.arange(np.size(icme_start_time_num[imavind])): 
+    this_icme_ind=np.where(np.logical_and( (mav_time[mav_data_ind] > icme_start_time_num[imavind][i]),mav_time[mav_data_ind] < mo_end_time_num[imavind][i] ))[0]
+    mav_icme_ind=np.append(mav_icme_ind,this_icme_ind)	
+print('mavd inside ICMEs full average:',(np.size(mav_icme_ind)/np.size(mav_data_ind)*100))
+
+
+
+
+sys.exit()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 #go through each year 
@@ -1635,6 +1578,9 @@ for i in range(np.size(cycle_start_times)):
 #inside_vex_perc=inside_vex_perc*1.5
 #inside_mes_perc=inside_mes_perc*1.5
 
+
+sns.set_context("talk")     
+sns.set_style("ticks",{'grid.linestyle': '--'})
 
 fig=plt.figure(5,figsize=(10,10	))
 

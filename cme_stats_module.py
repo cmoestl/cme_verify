@@ -30,6 +30,29 @@ from pycdf import pycdf
 
 
 
+
+
+
+
+
+
+def load_url_current_directory(filename,url):
+#loads a file from any url to the current directory
+#I use owncloud for the direct url links, 
+#also works for dropbox when changing the last 0 to 1 in the url-> gives a direct link to files
+
+ if not os.path.exists(filename):
+  print('download file ', filename, ' from')
+  print(url)
+  try: 
+    urllib.request.urlretrieve(url, filename)
+    print('done')
+  except urllib.error.URLError as e:
+    print(' ', data_url,' ',e.reason)
+
+
+
+
 def getpositions(filename):  
     pos=scipy.io.readsav(filename)  
     print
