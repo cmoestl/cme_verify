@@ -1057,6 +1057,100 @@ print('MAV')
 print(np.round(total_data_days_yearly_mav,1))
 
 
+############################### 3a get time inside ICME percentage for full time range
+
+
+###############
+if not os.path.exists('data_icme_indices_moestl_2019_paper.p'):
+
+ ###### check for each spacecraft and all data points if it is inside an ICME
+ # save results as pickle because it takes a minute to calculate
+
+ #get all win_btot correct data indices -> 
+ win_data_ind=np.where(np.isnan(win_btot)==False)
+ win_icme_ind=np.int32(0) #needs to be integer because these will be array indices
+ #Wind: go through each icme
+ for i in np.arange(np.size(icme_start_time_num[iwinind])): 
+    this_icme_ind=np.where(np.logical_and( (win_time[win_data_ind] > icme_start_time_num[iwinind][i]),\
+                                            win_time[win_data_ind] < icme_end_time_num[iwinind][i] ))[0]
+    win_icme_ind=np.append(win_icme_ind,this_icme_ind)	
+
+
+ sta_data_ind=np.where(np.isnan(sta_btot)==False)
+ sta_icme_ind=np.int32(0)
+ for i in np.arange(np.size(icme_start_time_num[istaind])): 
+    this_icme_ind=np.where(np.logical_and( (sta_time[sta_data_ind] > icme_start_time_num[istaind][i]),\
+                                            sta_time[sta_data_ind] < mo_end_time_num[istaind][i] ))[0]
+    sta_icme_ind=np.append(sta_icme_ind,this_icme_ind)	
+
+ stb_data_ind=np.where(np.isnan(stb_btot)==False)
+ stb_icme_ind=np.int32(0)
+ for i in np.arange(np.size(icme_start_time_num[istbind])): 
+    this_icme_ind=np.where(np.logical_and( (stb_time[stb_data_ind] > icme_start_time_num[istbind][i]),\
+                                            stb_time[stb_data_ind] < mo_end_time_num[istbind][i] ))[0]
+    stb_icme_ind=np.append(stb_icme_ind,this_icme_ind)	
+
+ vex_data_ind=np.where(np.isnan(vex_btot)==False)
+ vex_icme_ind=np.int32(0)
+ for i in np.arange(np.size(icme_start_time_num[ivexind])): 
+    this_icme_ind=np.where(np.logical_and( (vex_time[vex_data_ind] > icme_start_time_num[ivexind][i]),\
+                                            vex_time[vex_data_ind] < mo_end_time_num[ivexind][i] ))[0]
+    vex_icme_ind=np.append(vex_icme_ind,this_icme_ind)	
+
+ mes_data_ind=np.where(np.isnan(mes_btot)==False)
+ mes_icme_ind=np.int32(0)
+ for i in np.arange(np.size(icme_start_time_num[imesind])): 
+    this_icme_ind=np.where(np.logical_and( (mes_time[mes_data_ind] > icme_start_time_num[imesind][i]),\
+                                            mes_time[mes_data_ind] < mo_end_time_num[imesind][i] ))[0]
+    mes_icme_ind=np.append(mes_icme_ind,this_icme_ind)	
+
+ mav_data_ind=np.where(np.isnan(mav_btot)==False)
+ mav_icme_ind=np.int32(0)
+ for i in np.arange(np.size(icme_start_time_num[imavind])): 
+    this_icme_ind=np.where(np.logical_and( (mav_time[mav_data_ind] > icme_start_time_num[imavind][i]),\
+                                            mav_time[mav_data_ind] < mo_end_time_num[imavind][i] ))[0]
+    mav_icme_ind=np.append(mav_icme_ind,this_icme_ind)	
+
+
+ merc_data_ind=np.where(np.logical_and(np.isnan(mes_btot)==False,mes_time > \
+                       mdates.date2num(sunpy.time.parse_time('2011-03-18'))))
+ merc_icme_ind=np.int32(0)
+ for i in np.arange(np.size(icme_start_time_num[imercind])): 
+    this_icme_ind=np.where(np.logical_and( (mes_time[merc_data_ind] > icme_start_time_num[imercind][i]),\
+                                            mes_time[merc_data_ind] < mo_end_time_num[imercind][i] ))[0]
+    merc_icme_ind=np.append(merc_icme_ind,this_icme_ind)	
+ 
+
+ pickle.dump([win_icme_ind,win_data_ind, sta_icme_ind,sta_data_ind, stb_icme_ind,stb_data_ind,  vex_icme_ind,vex_data_ind, mes_icme_ind,mes_data_ind,
+ merc_icme_ind,merc_data_ind],open( "data_icme_indices_moestl_2019_paper.p", "wb" ) )
+################
+
+[win_icme_ind,win_data_ind, sta_icme_ind,sta_data_ind, stb_icme_ind,stb_data_ind,  vex_icme_ind,vex_data_ind, mes_icme_ind,mes_data_ind,\
+ merc_icme_ind,merc_data_ind]= pickle.load(open( "data_icme_indices_moestl_2019_paper.p", "rb" ) )
+
+print()
+print()
+print('Percentage of time inside ICMEs average over full time range')    
+print()
+print('Mercury MESSENGER: ',np.round((np.size(merc_icme_ind)/np.size(merc_data_ind)*100),1))
+print('Venus VEX: ',np.round((np.size(vex_icme_ind)/np.size(vex_data_ind)*100),1))
+print('Earth Wind: ',np.round((np.size(win_icme_ind)/np.size(win_data_ind)*100),1))
+print('Mars MAVEN: ',np.round((np.size(mes_icme_ind)/np.size(mes_data_ind)*100),1))
+print()
+print('MESSENGER: ',np.round((np.size(mes_icme_ind)/np.size(mes_data_ind)*100),1))
+print('STB: ',np.round((np.size(stb_icme_ind)/np.size(stb_data_ind)*100),1))
+print('STA: ',np.round((np.size(sta_icme_ind)/np.size(sta_data_ind)*100),1))
+
+
+
+
+
+
+
+
+
+################## 3b get time inside ICME percentage for yearly time range, using results for arrays from 3a
+
 
 
 ################################# make array for time inside percentages
@@ -1086,81 +1180,6 @@ inside_mav_perc.fill(np.nan)
 
 
 
-#check for each spacecraft and all data points if it is inside an ICME save results as pickle
-
-#get all win_btot correct data indices -> 
-win_data_ind=np.where(np.isnan(win_btot)==False)
-win_icme_ind=np.zeros(0)
-#Wind: go through each icme
-for i in np.arange(np.size(icme_start_time_num[iwinind])): 
-    this_icme_ind=np.where(np.logical_and( (win_time[win_data_ind] > icme_start_time_num[iwinind][i]),win_time[win_data_ind] < icme_end_time_num[iwinind][i] ))[0]
-    win_icme_ind=np.append(win_icme_ind,this_icme_ind)	
-print('Wind inside ICMEs full average:',(np.size(win_icme_ind)/np.size(win_data_ind)*100))
-
-
-sta_data_ind=np.where(np.isnan(sta_btot)==False)
-sta_icme_ind=np.zeros(0)
-#stad: go through each icme
-for i in np.arange(np.size(icme_start_time_num[istaind])): 
-    this_icme_ind=np.where(np.logical_and( (sta_time[sta_data_ind] > icme_start_time_num[istaind][i]),sta_time[sta_data_ind] < mo_end_time_num[istaind][i] ))[0]
-    sta_icme_ind=np.append(sta_icme_ind,this_icme_ind)	
-print('sta inside ICMEs full average:',(np.size(sta_icme_ind)/np.size(sta_data_ind)*100))
-
-
-
-#get all stb_btot correct data indices -> 
-stb_data_ind=np.where(np.isnan(stb_btot)==False)
-stb_icme_ind=np.zeros(0)
-#stbd: go through each icme
-for i in np.arange(np.size(icme_start_time_num[istbind])): 
-    this_icme_ind=np.where(np.logical_and( (stb_time[stb_data_ind] > icme_start_time_num[istbind][i]),stb_time[stb_data_ind] < mo_end_time_num[istbind][i] ))[0]
-    stb_icme_ind=np.append(stb_icme_ind,this_icme_ind)	
-print('stbd inside ICMEs full average:',(np.size(stb_icme_ind)/np.size(stb_data_ind)*100))
-
-
-
-#get all vex_btot correct data indices -> 
-vex_data_ind=np.where(np.isnan(vex_btot)==False)
-vex_icme_ind=np.zeros(0)
-#vexd: go through each icme
-for i in np.arange(np.size(icme_start_time_num[ivexind])): 
-    this_icme_ind=np.where(np.logical_and( (vex_time[vex_data_ind] > icme_start_time_num[ivexind][i]),vex_time[vex_data_ind] < mo_end_time_num[ivexind][i] ))[0]
-    vex_icme_ind=np.append(vex_icme_ind,this_icme_ind)	
-print('vexd inside ICMEs full average:',(np.size(vex_icme_ind)/np.size(vex_data_ind)*100))
-
-
-
-
-#get all mes_btot correct data indices -> 
-mes_data_ind=np.where(np.isnan(mes_btot)==False)
-mes_icme_ind=np.zeros(0)
-#mesd: go through each icme
-for i in np.arange(np.size(icme_start_time_num[imesind])): 
-    this_icme_ind=np.where(np.logical_and( (mes_time[mes_data_ind] > icme_start_time_num[imesind][i]),mes_time[mes_data_ind] < mo_end_time_num[imesind][i] ))[0]
-    mes_icme_ind=np.append(mes_icme_ind,this_icme_ind)	
-print('mesd inside ICMEs full average:',(np.size(mes_icme_ind)/np.size(mes_data_ind)*100))
-
-
-#******************************************************* only after orbit ins
-#get all merc_btot correct data indices -> 
-merc_data_ind=np.where(np.isnan(mes_btot)==False)
-merc_icme_ind=np.zeros(0)
-#mercd: go through each icme
-for i in np.arange(np.size(icme_start_time_num[imercind])): 
-    this_icme_ind=np.where(np.logical_and( (mes_time[merc_data_ind] > icme_start_time_num[imercind][i]),mes_time[merc_data_ind] < mo_end_time_num[imercind][i] ))[0]
-    merc_icme_ind=np.append(merc_icme_ind,this_icme_ind)	
-print('mercd inside ICMEs full average:',(np.size(merc_icme_ind)/np.size(merc_data_ind)*100))
-
-
-#get all mav_btot correct data indices -> 
-mav_data_ind=np.where(np.isnan(mav_btot)==False)
-mav_icme_ind=np.zeros(0)
-#mavd: go through each icme
-for i in np.arange(np.size(icme_start_time_num[imavind])): 
-    this_icme_ind=np.where(np.logical_and( (mav_time[mav_data_ind] > icme_start_time_num[imavind][i]),mav_time[mav_data_ind] < mo_end_time_num[imavind][i] ))[0]
-    mav_icme_ind=np.append(mav_icme_ind,this_icme_ind)	
-print('mavd inside ICMEs full average:',(np.size(mav_icme_ind)/np.size(mav_data_ind)*100))
-
 
 
 
@@ -1175,15 +1194,9 @@ sys.exit()
 
 
 
-
-
-
-
-
-
-
-
-
+print()
+print()
+print('Percentage of time inside ICMEs for each year')    
 
 
 

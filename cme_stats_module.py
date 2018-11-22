@@ -8,14 +8,12 @@ import scipy
 import copy
 import sunpy
 import matplotlib.dates as mdates
-import ephem
 import datetime
 import urllib
 import json
 import os
-import pycdf
 import pdb
-from pycdf import pycdf
+
 
 # use
 # import importlib
