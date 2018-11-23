@@ -1057,6 +1057,23 @@ print('MAV')
 print(np.round(total_data_days_yearly_mav,1))
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ############################### 3a get time inside ICME percentage for full time range
 
 
@@ -1122,24 +1139,24 @@ if not os.path.exists('data_icme_indices_moestl_2019_paper.p'):
  
 
  pickle.dump([win_icme_ind,win_data_ind, sta_icme_ind,sta_data_ind, stb_icme_ind,stb_data_ind,  vex_icme_ind,vex_data_ind, mes_icme_ind,mes_data_ind,
- merc_icme_ind,merc_data_ind],open( "data_icme_indices_moestl_2019_paper.p", "wb" ) )
+ merc_icme_ind,merc_data_ind, mav_icme_ind, mav_data_ind],open( "data_icme_indices_moestl_2019_paper.p", "wb" ) )
 ################
 
 [win_icme_ind,win_data_ind, sta_icme_ind,sta_data_ind, stb_icme_ind,stb_data_ind,  vex_icme_ind,vex_data_ind, mes_icme_ind,mes_data_ind,\
- merc_icme_ind,merc_data_ind]= pickle.load(open( "data_icme_indices_moestl_2019_paper.p", "rb" ) )
+ merc_icme_ind,merc_data_ind,mav_icme_ind, mav_data_ind]= pickle.load(open( "data_icme_indices_moestl_2019_paper.p", "rb" ) )
 
 print()
 print()
 print('Percentage of time inside ICMEs average over full time range')    
 print()
-print('Mercury MESSENGER: ',np.round((np.size(merc_icme_ind)/np.size(merc_data_ind)*100),1))
-print('Venus VEX: ',np.round((np.size(vex_icme_ind)/np.size(vex_data_ind)*100),1))
-print('Earth Wind: ',np.round((np.size(win_icme_ind)/np.size(win_data_ind)*100),1))
-print('Mars MAVEN: ',np.round((np.size(mes_icme_ind)/np.size(mes_data_ind)*100),1))
+print('Mercury MESSENGER:******* ',np.round((np.size(merc_icme_ind)/np.size(merc_data_ind)*100),1))
+print('Venus VEX:         ',np.round((np.size(vex_icme_ind)/np.size(vex_data_ind)*100),1))
+print('Earth Wind:        ',np.round((np.size(win_icme_ind)/np.size(win_data_ind)*100),1))
+print('Mars MAVEN:        ',np.round((np.size(mes_icme_ind)/np.size(mes_data_ind)*100),1))
 print()
-print('MESSENGER: ',np.round((np.size(mes_icme_ind)/np.size(mes_data_ind)*100),1))
-print('STB: ',np.round((np.size(stb_icme_ind)/np.size(stb_data_ind)*100),1))
-print('STA: ',np.round((np.size(sta_icme_ind)/np.size(sta_data_ind)*100),1))
+print('MESSENGER:         ',np.round((np.size(mes_icme_ind)/np.size(mes_data_ind)*100),1))
+print('STB:               ',np.round((np.size(stb_icme_ind)/np.size(stb_data_ind)*100),1))
+print('STA:               ',np.round((np.size(sta_icme_ind)/np.size(sta_data_ind)*100),1))
 
 
 
@@ -1178,25 +1195,51 @@ inside_mav_perc.fill(np.nan)
 
 
 
+#count ratio of datapoint inside ICME to all available datapoints for each year, Wind, STA, STB, Mercury, MESSENGER, VEX, MAVEN
 
+for i in range(np.size(yearly_mid_times)):
 
+    thisyear_icme=np.where(np.logical_and((win_time[win_icme_ind] > yearly_start_times[i]),(win_time[win_icme_ind] < yearly_end_times[i])))
+    thisyear_data=np.where(np.logical_and((win_time[win_data_ind] > yearly_start_times[i]),(win_time[win_data_ind] < yearly_end_times[i])))
+    if np.size(thisyear_data) >0:inside_win_perc[i]=round(np.size(thisyear_icme)/np.size(thisyear_data)*100,1)
 
+    thisyear_icme=np.where(np.logical_and((sta_time[sta_icme_ind] > yearly_start_times[i]),(sta_time[sta_icme_ind] < yearly_end_times[i])))
+    thisyear_data=np.where(np.logical_and((sta_time[sta_data_ind] > yearly_start_times[i]),(sta_time[sta_data_ind] < yearly_end_times[i])))
+    if np.size(thisyear_data) >0:inside_sta_perc[i]=round(np.size(thisyear_icme)/np.size(thisyear_data)*100,1)
 
+    thisyear_icme=np.where(np.logical_and((stb_time[stb_icme_ind] > yearly_start_times[i]),(stb_time[stb_icme_ind] < yearly_end_times[i])))
+    thisyear_data=np.where(np.logical_and((stb_time[stb_data_ind] > yearly_start_times[i]),(stb_time[stb_data_ind] < yearly_end_times[i])))
+    if np.size(thisyear_data) >0:inside_stb_perc[i]=round(np.size(thisyear_icme)/np.size(thisyear_data)*100,1)
 
-sys.exit()
+    thisyear_icme=np.where(np.logical_and((mes_time[mes_icme_ind] > yearly_start_times[i]),(mes_time[mes_icme_ind] < yearly_end_times[i])))
+    thisyear_data=np.where(np.logical_and((mes_time[mes_data_ind] > yearly_start_times[i]),(mes_time[mes_data_ind] < yearly_end_times[i])))
+    if np.size(thisyear_data) >0:inside_mes_perc[i]=round(np.size(thisyear_icme)/np.size(thisyear_data)*100,1)
 
+    thisyear_icme=np.where(np.logical_and((vex_time[vex_icme_ind] > yearly_start_times[i]),(vex_time[vex_icme_ind] < yearly_end_times[i])))
+    thisyear_data=np.where(np.logical_and((vex_time[vex_data_ind] > yearly_start_times[i]),(vex_time[vex_data_ind] < yearly_end_times[i])))
+    if np.size(thisyear_data) >0:inside_vex_perc[i]=round(np.size(thisyear_icme)/np.size(thisyear_data)*100,1)
 
+    thisyear_icme=np.where(np.logical_and((mes_time[merc_icme_ind] > yearly_start_times[i]),(mes_time[merc_icme_ind] < yearly_end_times[i])))
+    thisyear_data=np.where(np.logical_and((mes_time[merc_data_ind] > yearly_start_times[i]),(mes_time[merc_data_ind] < yearly_end_times[i])))
+    if np.size(thisyear_data) >0: inside_merc_perc[i]=round(np.size(thisyear_icme)/np.size(thisyear_data)*100,1)
 
-
-
-
-
-
+    thisyear_icme=np.where(np.logical_and((mav_time[mav_icme_ind] > yearly_start_times[i]),(mav_time[mav_icme_ind] < yearly_end_times[i])))
+    thisyear_data=np.where(np.logical_and((mav_time[mav_data_ind] > yearly_start_times[i]),(mav_time[mav_data_ind] < yearly_end_times[i])))
+    if np.size(thisyear_data) >0: inside_mav_perc[i]=round(np.size(thisyear_icme)/np.size(thisyear_data)*100,1)
 
 
 print()
 print()
 print('Percentage of time inside ICMEs for each year')    
+print()
+print('Mercury MESSENGER: ',inside_merc_perc)
+print('Venus VEX:         ',inside_vex_perc)
+print('Earth Wind:        ',inside_win_perc)
+print('Mars MAVEN:        ',inside_mav_perc)
+print()
+print('MESSENGER:         ',inside_mes_perc)
+print('STB:               ',inside_stb_perc)
+print('STA:               ',inside_sta_perc)
 
 
 
@@ -1205,376 +1248,82 @@ print('Percentage of time inside ICMEs for each year')
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-#go through each year 
-for i in range(np.size(yearly_mid_times)):
-  
-  #Wind:
-  
-  #select those icmes that are inside the current year
-  thisyear=np.where(np.logical_and((icme_start_time_num[iwinind] > yearly_start_times[i]),(icme_start_time_num[iwinind] < yearly_end_times[i])))
-  #summarize durations per year and convert to days
-  total_icme_days=np.sum(icme_durations[thisyear])/24
-  #get percentage
-  if total_icme_days > 0:   inside_wind_perc[i]=total_icme_days/total_data_days_wind[i]*100
-
-  thisyear=np.where(np.logical_and((icme_start_time_num[istaind] > yearly_start_times[i]),(icme_start_time_num[istaind] < yearly_end_times[i])))
-  total_icme_days=np.sum(icme_durations[thisyear])/24
-  if total_icme_days > 0:   inside_sta_perc[i]=total_icme_days/total_data_days_sta[i]*100
-  
-  thisyear=np.where(np.logical_and((icme_start_time_num[istbind] > yearly_start_times[i]),(icme_start_time_num[istbind] < yearly_end_times[i])))
-  total_icme_days=np.sum(icme_durations[thisyear])/24
-  if total_icme_days > 0:   inside_stb_perc[i]=total_icme_days/total_data_days_stb[i]*100
-
-  thisyear=np.where(np.logical_and((icme_start_time_num[imesind] > yearly_start_times[i]),(icme_start_time_num[imesind] < yearly_end_times[i])))
-  total_icme_days=np.sum(icme_durations[thisyear])/24
-  if total_icme_days > 0:   inside_mes_perc[i]=total_icme_days/total_data_days_mes[i]*100
-  
-  thisyear=np.where(np.logical_and((icme_start_time_num[imercind] > yearly_start_times[i]),(icme_start_time_num[imercind] < yearly_end_times[i])))
-  total_icme_days=np.sum(icme_durations[thisyear])/24
-  if total_icme_days > 0:   inside_merc_perc[i]=total_icme_days/total_data_days_merc[i]*100
-
-  
-  thisyear=np.where(np.logical_and((icme_start_time_num[ivexind] > yearly_start_times[i]),(icme_start_time_num[ivexind] < yearly_end_times[i])))
-  total_icme_days=np.sum(icme_durations[thisyear])/24
-  if total_icme_days > 0:   inside_vex_perc[i]=total_icme_days/total_data_days_vex[i]*100
-
-  thisyear=np.where(np.logical_and((icme_start_time_num[imavind] > yearly_start_times[i]),(icme_start_time_num[imavind] < yearly_end_times[i])))
-  total_icme_days=np.sum(icme_durations[thisyear])/24
-  if total_icme_days > 0:   inside_mav_perc[i]=total_icme_days/total_data_days_mav[i]*100
-
-
-
-
-
-
-
-
-
-
-
-
-
-#######*********************** check next section again; if min/rise/max shifts, manually adjust data gaps
-
-#####################################################################################
-############ make the same thing not yearly, but for the 3 solar cycle phases
+####################make the same thing not yearly, but for the 3 solar cycle phases
 
 
 cycle_start_times=[minstart, risestart, maxstart]
 cycle_end_times=[minend, riseend, maxend]
 
-
-total_data_days_sta_cycle=np.zeros(np.size(cycle_start_times))
-total_data_days_sta_cycle.fill(np.nan)
-
-total_data_days_stb_cycle=np.zeros(np.size(cycle_start_times))
-total_data_days_stb_cycle.fill(np.nan)
-
-total_data_days_wind_cycle=np.zeros(np.size(cycle_start_times))
-total_data_days_wind_cycle.fill(np.nan)
-
-
-#define manually the data time ranges inside min, rise, max
-
-#go through each year and search for data gaps, ok for solar wind missions 
-
-for i in range(np.size(cycle_start_times)):
- 
-  #Wind
-  phase=np.where(np.logical_and((win_time > cycle_start_times[i]),(win_time < cycle_end_times[i])))
-  nan=np.isnan(win_btot[phase]) 
-  notnan=np.where(nan == False)
-  if np.size(notnan) >0: total_data_days_wind_cycle[i]=cycle_end_times[i]-cycle_start_times[i]
-  if np.size(nan) > 0: total_data_days_wind_cycle[i]=np.size(notnan)/np.size(nan)*(cycle_end_times[i]-cycle_start_times[i])
-  
-  #STA
-  phase=np.where(np.logical_and((sta_time > cycle_start_times[i]),(sta_time < cycle_end_times[i])))
-  nan=np.isnan(sta_btot[phase]) 
-  notnan=np.where(nan == False)
-  if np.size(notnan) >0: total_data_days_sta_cycle[i]=cycle_end_times[i]-cycle_start_times[i]
-  if np.size(nan) > 0: total_data_days_sta_cycle[i]=np.size(notnan)/np.size(nan)*(cycle_end_times[i]-cycle_start_times[i])
-
-  #STB
-  phase=np.where(np.logical_and((stb_time > cycle_start_times[i]),(stb_time < cycle_end_times[i])))
-  nan=np.isnan(stb_btot[phase]) 
-  notnan=np.where(nan == False)
-  if np.size(notnan) >0: total_data_days_stb_cycle[i]=cycle_end_times[i]-cycle_start_times[i]
-  if np.size(nan) > 0: total_data_days_stb_cycle[i]=np.size(notnan)/np.size(nan)*(cycle_end_times[i]-cycle_start_times[i])
-
-#for MESSENGER; VEX, MAVEN this is not correct because the nans during orbits are counted; 
-#thats why we search manually for longer data gaps, and manually set the total_data_days_vex_cycle for each phase
-
-
-##################longer data gaps for MESSENGER and Mercury
-total_data_days_mes_cycle=np.zeros(np.size(cycle_start_times))
-total_data_days_mes_cycle.fill(np.nan)
-
-total_data_days_merc_cycle=np.zeros(np.size(cycle_start_times))
-total_data_days_merc_cycle.fill(np.nan)
-#total_data_days_mes.fill(365)
-
-#min
-
-jump1beg=mdates.date2num(sunpy.time.parse_time('2007-Jan-1'))
-jump1end=mdates.date2num(sunpy.time.parse_time('2007-Mar-31'))
-
-jump2beg=mdates.date2num(sunpy.time.parse_time('2007-Jul-1'))
-jump2end=mdates.date2num(sunpy.time.parse_time('2007-Jul-21'))
-
-jump3beg=mdates.date2num(sunpy.time.parse_time('2007-Aug-25'))
-jump3end=mdates.date2num(sunpy.time.parse_time('2007-Dec-21'))
-
-jump4beg=mdates.date2num(sunpy.time.parse_time('2008-Feb-24'))
-jump4end=mdates.date2num(sunpy.time.parse_time('2008-Dec-31'))
-
-jump5beg=mdates.date2num(sunpy.time.parse_time('2009-Jan-01'))
-jump5end=mdates.date2num(sunpy.time.parse_time('2009-Jan-12'))
-
-jump6beg=mdates.date2num(sunpy.time.parse_time('2009-Jul-08'))
-jump6end=mdates.date2num(sunpy.time.parse_time('2009-Jul-22'))
-
-jump7beg=mdates.date2num(sunpy.time.parse_time('2009-Aug-18'))
-jump7end=mdates.date2num(sunpy.time.parse_time('2009-Aug-24'))
-
-jump8beg=mdates.date2num(sunpy.time.parse_time('2009-Sep-01'))
-jump8end=mdates.date2num(sunpy.time.parse_time('2009-Sep-04'))
-
-jump9beg=mdates.date2num(sunpy.time.parse_time('2009-Sep-30'))
-jump9end=mdates.date2num(sunpy.time.parse_time('2009-Oct-02'))
-
-jump10beg=mdates.date2num(sunpy.time.parse_time('2009-Oct-13'))
-jump10end=mdates.date2num(sunpy.time.parse_time('2009-Dec-10'))
-
-total_data_days_mes_cycle[0]=cycle_end_times[0]-cycle_start_times[0]-(jump1end-jump1beg)-(jump2end-jump2beg)-(jump3end-jump3beg)-(jump4end-jump4beg)-(jump5end-jump5beg)-(jump6end-jump6beg)-(jump7end-jump7beg)-(jump8end-jump8beg)-(jump9end-jump9beg)-(jump10end-jump10beg)
-
-
-
-#rise 2010 anfang bis mitte 2011
-
-jump1beg=mdates.date2num(sunpy.time.parse_time('2011-Mar-16'))
-jump1end=mdates.date2num(sunpy.time.parse_time('2011-Mar-24'))
-
-jump2beg=mdates.date2num(sunpy.time.parse_time('2011-Jan-01'))
-jump2end=mdates.date2num(sunpy.time.parse_time('2011-Mar-24'))
-
-total_data_days_mes_cycle[1]=cycle_end_times[1]-cycle_start_times[1]-(jump1end-jump1beg)-(jump2end-jump2beg)
-##*******correct?
-total_data_days_merc_cycle[1]=cycle_end_times[1]-mdates.date2num(sunpy.time.parse_time('2011-Mar-24'))
-
-#max 
-#2011 mitte bis ende 2015
-jump1beg=mdates.date2num(sunpy.time.parse_time('2012-Jun-06'))
-jump1end=mdates.date2num(sunpy.time.parse_time('2012-Jun-13'))
-
-jump2beg=mdates.date2num(sunpy.time.parse_time('2013-Apr-01'))
-jump2end=mdates.date2num(sunpy.time.parse_time('2013-May-01'))
-
-jump3beg=mdates.date2num(sunpy.time.parse_time('2014-Feb-25'))
-jump3end=mdates.date2num(sunpy.time.parse_time('2014-Mar-26'))
-
-total_data_days_mes_cycle[2]=cycle_end_times[2]-cycle_start_times[2]-(jump1end-jump1beg)-(jump2end-jump2beg)-(jump3end-jump3beg)
-total_data_days_merc_cycle[2]=cycle_end_times[2]-cycle_start_times[2]-(jump1end-jump1beg)-(jump2end-jump2beg)-(jump3end-jump3beg)
-
-
-
-############################ MAVEN
-
-total_data_days_mav_cycle=np.zeros(np.size(cycle_start_times))
-total_data_days_mav_cycle.fill(np.nan)
-
-#only declining phase
-
-jump1beg=mdates.date2num(sunpy.time.parse_time('2015-Mar-8'))
-jump1end=mdates.date2num(sunpy.time.parse_time('2015-Jun-17'))
-
-jump2beg=mdates.date2num(sunpy.time.parse_time('2015-Oct-3'))
-jump2end=mdates.date2num(sunpy.time.parse_time('2015-Dec-18'))
-
-jump3beg=mdates.date2num(sunpy.time.parse_time('2016-Mar-27'))
-jump3end=mdates.date2num(sunpy.time.parse_time('2016-Jun-3'))
-
-jump4beg=mdates.date2num(sunpy.time.parse_time('2016-Sep-30'))
-jump4end=mdates.date2num(sunpy.time.parse_time('2016-Dec-6'))
-
-startdata=mdates.date2num(sunpy.time.parse_time('2014-Nov-27'))
-enddata=mdates.date2num(sunpy.time.parse_time('2016-Dec-31'))
-
-total_data_days_mav_cycle[1]=enddata-startdata-(jump1end-jump1beg)-(jump2end-jump2beg)-(jump3end-jump3beg)-(jump4end-jump4beg)
-
-
-#################VEX 
-total_data_days_vex_cycle=np.zeros(np.size(cycle_start_times))
-total_data_days_vex_cycle.fill(np.nan)
-
-#times of longer data gaps
-
-#min
-#2007 #from Jan 1 - Apr 1 there is not data gap
-
-jump1beg=mdates.date2num(sunpy.time.parse_time('2007-Jul-5'))
-jump1end=mdates.date2num(sunpy.time.parse_time('2007-Jul-12'))
-
-jump2beg=mdates.date2num(sunpy.time.parse_time('2007-Aug-23'))
-jump2end=mdates.date2num(sunpy.time.parse_time('2007-Aug-28'))
-
-jump3beg=mdates.date2num(sunpy.time.parse_time('2007-Sep-18'))
-jump3end=mdates.date2num(sunpy.time.parse_time('2007-Sep-20'))
-
-jump4beg=mdates.date2num(sunpy.time.parse_time('2008-May-28'))
-jump4end=mdates.date2num(sunpy.time.parse_time('2008-Jun-21'))
-
-jump5beg=mdates.date2num(sunpy.time.parse_time('2009-Apr-17'))
-jump5end=mdates.date2num(sunpy.time.parse_time('2009-Apr-28'))
-
-jump6beg=mdates.date2num(sunpy.time.parse_time('2009-Dec-28'))
-jump6end=mdates.date2num(sunpy.time.parse_time('2009-Dec-31'))
-
-total_data_days_vex_cycle[0]=cycle_end_times[0]-cycle_start_times[0]-(jump1end-jump1beg)-(jump2end-jump2beg)-(jump3end-jump3beg)-(jump4end-jump4beg)-(jump5end-jump5beg)-(jump6end-jump6beg)
-
-#rise
-#2010 bis mitte 2011
-jump1beg=mdates.date2num(sunpy.time.parse_time('2010-Jan-01'))
-jump1end=mdates.date2num(sunpy.time.parse_time('2010-Jan-23'))
-
-jump2beg=mdates.date2num(sunpy.time.parse_time('2010-Apr-12'))
-jump2end=mdates.date2num(sunpy.time.parse_time('2010-Apr-17'))
-
-jump3beg=mdates.date2num(sunpy.time.parse_time('2011-Jan-24'))
-jump3end=mdates.date2num(sunpy.time.parse_time('2011-Jan-27'))
-
-total_data_days_vex_cycle[1]=cycle_end_times[1]-cycle_start_times[1]-(jump1end-jump1beg)-(jump2end-jump2beg)-(jump3end-jump3beg)
-
-
-#max 2011 mitte bis ende 2015 (end of mission VEX)
-jump1beg=mdates.date2num(sunpy.time.parse_time('2011-Aug-05'))
-jump1end=mdates.date2num(sunpy.time.parse_time('2011-Sep-01'))
-
-jump2beg=mdates.date2num(sunpy.time.parse_time('2012-Mar-10'))
-jump2end=mdates.date2num(sunpy.time.parse_time('2012-Mar-12'))
-
-jump3beg=mdates.date2num(sunpy.time.parse_time('2012-Jun-04'))
-jump3end=mdates.date2num(sunpy.time.parse_time('2012-Jun-07'))
-
-jump4beg=mdates.date2num(sunpy.time.parse_time('2012-Jul-13'))
-jump4end=mdates.date2num(sunpy.time.parse_time('2012-Jul-15'))
-
-jump5beg=mdates.date2num(sunpy.time.parse_time('2012-Dec-29'))
-jump5end=mdates.date2num(sunpy.time.parse_time('2012-Dec-31'))
-
-jump6beg=mdates.date2num(sunpy.time.parse_time('2013-Mar-17'))
-jump6end=mdates.date2num(sunpy.time.parse_time('2013-Apr-14'))
-
-jump7beg=mdates.date2num(sunpy.time.parse_time('2014-Feb-25'))
-jump7end=mdates.date2num(sunpy.time.parse_time('2014-Mar-26'))
-
-jump8beg=mdates.date2num(sunpy.time.parse_time('2014-May-16'))
-jump8end=mdates.date2num(sunpy.time.parse_time('2014-May-21'))
-
-jump9beg=mdates.date2num(sunpy.time.parse_time('2014-Jul-12'))
-jump9end=mdates.date2num(sunpy.time.parse_time('2014-Jul-21'))
-
-jump10beg=mdates.date2num(sunpy.time.parse_time('2014-Oct-13'))
-jump10end=mdates.date2num(sunpy.time.parse_time('2014-Nov-11'))
-
-jump11beg=mdates.date2num(sunpy.time.parse_time('2014-Nov-26'))
-jump11end=mdates.date2num(sunpy.time.parse_time('2014-Dec-31'))
-
-total_data_days_vex_cycle[2]=cycle_end_times[2]-cycle_start_times[2]-(jump1end-jump1beg)-(jump2end-jump2beg)-(jump3end-jump3beg)-(jump4end-jump4beg)-(jump5end-jump5beg)-(jump6end-jump6beg)-(jump7end-jump7beg)-(jump8end-jump8beg)-(jump9end-jump9beg)-(jump10end-jump10beg)-(jump11end-jump11beg)
-
-
-
-
-
-
-
-
-
 ############################################
 
 
-inside_wind_perc_cycle=np.zeros(np.size(cycle_start_times))
-inside_wind_perc_cycle.fill(np.nan)
+inside_win_cycle=np.zeros(np.size(cycle_start_times))
+inside_win_cycle.fill(np.nan)
 
-inside_sta_perc_cycle=np.zeros(np.size(cycle_start_times))
-inside_sta_perc_cycle.fill(np.nan)
+inside_sta_cycle=np.zeros(np.size(cycle_start_times))
+inside_sta_cycle.fill(np.nan)
 
-inside_stb_perc_cycle=np.zeros(np.size(cycle_start_times))
-inside_stb_perc_cycle.fill(np.nan)
+inside_stb_cycle=np.zeros(np.size(cycle_start_times))
+inside_stb_cycle.fill(np.nan)
 
-inside_mes_perc_cycle=np.zeros(np.size(cycle_start_times))
-inside_mes_perc_cycle.fill(np.nan)
+inside_mes_cycle=np.zeros(np.size(cycle_start_times))
+inside_mes_cycle.fill(np.nan)
 
-inside_merc_perc_cycle=np.zeros(np.size(cycle_start_times))
-inside_merc_perc_cycle.fill(np.nan)
+inside_merc_cycle=np.zeros(np.size(cycle_start_times))
+inside_merc_cycle.fill(np.nan)
 
-inside_vex_perc_cycle=np.zeros(np.size(cycle_start_times))
-inside_vex_perc_cycle.fill(np.nan)
+inside_vex_cycle=np.zeros(np.size(cycle_start_times))
+inside_vex_cycle.fill(np.nan)
 
-inside_mav_perc_cycle=np.zeros(np.size(cycle_start_times))
-inside_mav_perc_cycle.fill(np.nan)
+inside_mav_cycle=np.zeros(np.size(cycle_start_times))
+inside_mav_cycle.fill(np.nan)
 
-#maven only declining phase
-inside_mav_perc_cycle[1]=(np.sum(icme_durations[imavind]))/24/total_data_days_mav_cycle[1]*100
 
-#go through solar cycle phases min, rise, max for Wind, VEX, MES, STA, STB
+#count ratio of datapoint inside ICME to all available datapoints for each year, Wind, STA, STB, Mercury, MESSENGER, VEX, MAVEN
+
 for i in range(np.size(cycle_start_times)):
-  
-  #Wind:
-  #select those icmes that are inside min, rise, max
-  phase=np.where(np.logical_and((icme_start_time_num[iwinind] > cycle_start_times[i]),(icme_start_time_num[iwinind] < cycle_end_times[i])))
-  #summarize durations per phase and convert to days
-  total_icme_days=np.sum(icme_durations[phase])/24
-  #get percentage
-  if total_icme_days > 0:   inside_wind_perc_cycle[i]=total_icme_days/total_data_days_wind_cycle[i]*100
 
-  phase=np.where(np.logical_and((icme_start_time_num[istaind] > cycle_start_times[i]),(icme_start_time_num[istaind] < cycle_end_times[i])))
-  total_icme_days=np.sum(icme_durations[phase])/24
-  if total_icme_days > 0:   inside_sta_perc_cycle[i]=total_icme_days/total_data_days_sta_cycle[i]*100
-  
-  phase=np.where(np.logical_and((icme_start_time_num[istbind] > cycle_start_times[i]),(icme_start_time_num[istbind] < cycle_end_times[i])))
-  total_icme_days=np.sum(icme_durations[phase])/24
-  if total_icme_days > 0:   inside_stb_perc_cycle[i]=total_icme_days/total_data_days_stb_cycle[i]*100
+    thisyear_icme=np.where(np.logical_and((win_time[win_icme_ind] > cycle_start_times[i]),(win_time[win_icme_ind] < cycle_end_times[i])))
+    thisyear_data=np.where(np.logical_and((win_time[win_data_ind] > cycle_start_times[i]),(win_time[win_data_ind] < cycle_end_times[i])))
+    if np.size(thisyear_data) >0:inside_win_cycle[i]=round(np.size(thisyear_icme)/np.size(thisyear_data)*100,1)
 
-  phase=np.where(np.logical_and((icme_start_time_num[imesind] > cycle_start_times[i]),(icme_start_time_num[imesind] < cycle_end_times[i])))
-  total_icme_days=np.sum(icme_durations[phase])/24
-  if total_icme_days > 0:   inside_mes_perc_cycle[i]=total_icme_days/total_data_days_mes_cycle[i]*100
-  
-  phase=np.where(np.logical_and((icme_start_time_num[imercind] > cycle_start_times[i]),(icme_start_time_num[imercind] < cycle_end_times[i])))
-  total_icme_days=np.sum(icme_durations[phase])/24
-  if total_icme_days > 0:   inside_merc_perc_cycle[i]=total_icme_days/total_data_days_merc_cycle[i]*100
-  
-  phase=np.where(np.logical_and((icme_start_time_num[ivexind] > cycle_start_times[i]),(icme_start_time_num[ivexind] < cycle_end_times[i])))
-  total_icme_days=np.sum(icme_durations[phase])/24
-  if total_icme_days > 0:   inside_vex_perc_cycle[i]=total_icme_days/total_data_days_vex_cycle[i]*100
+    thisyear_icme=np.where(np.logical_and((sta_time[sta_icme_ind] > cycle_start_times[i]),(sta_time[sta_icme_ind] < cycle_end_times[i])))
+    thisyear_data=np.where(np.logical_and((sta_time[sta_data_ind] > cycle_start_times[i]),(sta_time[sta_data_ind] < cycle_end_times[i])))
+    if np.size(thisyear_data) >0:inside_sta_cycle[i]=round(np.size(thisyear_icme)/np.size(thisyear_data)*100,1)
 
-  #phase=np.where(np.logical_and((icme_start_time_num[imavind] > cycle_start_times[i]),(icme_start_time_num[imavind] < cycle_end_times[i])))
-  #total_icme_days=np.sum(icme_durations[phase])/24
-  #if total_icme_days > 0:   inside_mav_perc_cycle[i]=total_icme_days/total_data_days_mav_cycle[i]*100
+    thisyear_icme=np.where(np.logical_and((stb_time[stb_icme_ind] > cycle_start_times[i]),(stb_time[stb_icme_ind] < cycle_end_times[i])))
+    thisyear_data=np.where(np.logical_and((stb_time[stb_data_ind] > cycle_start_times[i]),(stb_time[stb_data_ind] < cycle_end_times[i])))
+    if np.size(thisyear_data) >0:inside_stb_cycle[i]=round(np.size(thisyear_icme)/np.size(thisyear_data)*100,1)
+
+    thisyear_icme=np.where(np.logical_and((mes_time[mes_icme_ind] > cycle_start_times[i]),(mes_time[mes_icme_ind] < cycle_end_times[i])))
+    thisyear_data=np.where(np.logical_and((mes_time[mes_data_ind] > cycle_start_times[i]),(mes_time[mes_data_ind] < cycle_end_times[i])))
+    if np.size(thisyear_data) >0:inside_mes_cycle[i]=round(np.size(thisyear_icme)/np.size(thisyear_data)*100,1)
+
+    thisyear_icme=np.where(np.logical_and((vex_time[vex_icme_ind] > cycle_start_times[i]),(vex_time[vex_icme_ind] < cycle_end_times[i])))
+    thisyear_data=np.where(np.logical_and((vex_time[vex_data_ind] > cycle_start_times[i]),(vex_time[vex_data_ind] < cycle_end_times[i])))
+    if np.size(thisyear_data) >0:inside_vex_cycle[i]=round(np.size(thisyear_icme)/np.size(thisyear_data)*100,1)
+
+    thisyear_icme=np.where(np.logical_and((mes_time[merc_icme_ind] > cycle_start_times[i]),(mes_time[merc_icme_ind] < cycle_end_times[i])))
+    thisyear_data=np.where(np.logical_and((mes_time[merc_data_ind] > cycle_start_times[i]),(mes_time[merc_data_ind] < cycle_end_times[i])))
+    if np.size(thisyear_data) >0: inside_merc_cycle[i]=round(np.size(thisyear_icme)/np.size(thisyear_data)*100,1)
+
+    thisyear_icme=np.where(np.logical_and((mav_time[mav_icme_ind] > cycle_start_times[i]),(mav_time[mav_icme_ind] < cycle_end_times[i])))
+    thisyear_data=np.where(np.logical_and((mav_time[mav_data_ind] > cycle_start_times[i]),(mav_time[mav_data_ind] < cycle_end_times[i])))
+    if np.size(thisyear_data) >0: inside_mav_cycle[i]=round(np.size(thisyear_icme)/np.size(thisyear_data)*100,1)
 
 
-
-
-
-
-
-
-
-
-
-
-
-
+print()
+print()
+print('Percentage of time inside ICMEs for min, rise, max:')    
+print()
+print('Mercury MESSENGER: ',inside_merc_cycle)
+print('Venus VEX:         ',inside_vex_cycle)
+print('Earth Wind:        ',inside_win_cycle)
+print('Mars MAVEN:        ',inside_mav_cycle)
+print()
+print('MESSENGER:         ',inside_mes_cycle)
+print('STB:               ',inside_stb_cycle)
+print('STA:               ',inside_sta_cycle)
 
 
 
@@ -1599,7 +1348,7 @@ fig=plt.figure(5,figsize=(10,10	))
 
 ax1 = plt.subplot(211) 
 
-plt.plot_date(yearly_mid_times,inside_wind_perc,'o',color='mediumseagreen',markersize=8, linestyle='-')
+plt.plot_date(yearly_mid_times,inside_win_perc,'o',color='mediumseagreen',markersize=8, linestyle='-')
 plt.plot_date(yearly_mid_times,inside_merc_perc,'o',color='darkgrey',markersize=8,linestyle='-')
 plt.plot_date(yearly_mid_times,inside_vex_perc,'o',color='orange',markersize=8,linestyle='-')
 plt.plot_date(yearly_mid_times,inside_stb_perc,'o',color='royalblue',markersize=8,linestyle='-')
@@ -1750,7 +1499,7 @@ for i in range(np.size(yearly_mid_times)):
   pos_stb_perc_std[i]=np.std(pos.stb[0][thisyear])
   
   allpositions[i][:]=(pos_merc_perc[i], pos_mav_perc[i], pos_vex_perc[i],pos_wind_perc[i],pos_sta_perc[i],pos_stb_perc[i])
-  allinside[i][:]=(inside_merc_perc[i], inside_mav_perc[i], inside_vex_perc[i],inside_wind_perc[i],inside_sta_perc[i],inside_stb_perc[i])
+  allinside[i][:]=(inside_merc_perc[i], inside_mav_perc[i], inside_vex_perc[i],inside_win_perc[i],inside_sta_perc[i],inside_stb_perc[i])
   
  
   
@@ -1785,7 +1534,7 @@ for i in range(np.size(yearly_mid_times)-2):
  plt.errorbar(pos_mav_perc[i], inside_mav_perc[i],xerr=pos_mav_perc_std[i],fmt='o',color='steelblue',markersize=8,linestyle=' ',alpha=i/10+0.2)
  plt.errorbar(pos_sta_perc[i], inside_sta_perc[i],xerr=pos_sta_perc_std[i],fmt='o',color='red',markersize=8,linestyle=' ',alpha=i/10+0.2)
  plt.errorbar(pos_stb_perc[i], inside_stb_perc[i],xerr=pos_stb_perc_std[i],fmt='o',color='royalblue',markersize=8,linestyle=' ',alpha=i/10+0.2)
- plt.errorbar(pos_wind_perc[i], inside_wind_perc[i],xerr=pos_wind_perc_std[i],fmt='o',color='mediumseagreen',markersize=8, linestyle=' ',alpha=i/10+0.2)
+ plt.errorbar(pos_wind_perc[i], inside_win_perc[i],xerr=pos_wind_perc_std[i],fmt='o',color='mediumseagreen',markersize=8, linestyle=' ',alpha=i/10+0.2)
  plt.errorbar(pos_vex_perc[i], inside_vex_perc[i],xerr=pos_vex_perc_std[i],fmt='o',color='orange',markersize=8,linestyle=' ',alpha=i/10+0.2)
  
  plt.annotate(str(i+2007), xy=(0.1,5+2.5*i), alpha=i/10+0.2)
@@ -1842,43 +1591,43 @@ print('Time Inside')
 
 print()
 print('Mercury +/-')
-print(round(np.nanmean(inside_merc_perc_cycle),1))
-print(round(np.nanstd(inside_merc_perc_cycle),1))
+print(round(np.nanmean(inside_merc_cycle),1))
+print(round(np.nanstd(inside_merc_cycle),1))
 #print('min')
-#print(round(inside_merc_perc_cycle[0],1))
+#print(round(inside_merc_cycle[0],1))
 print('rise')
-print(round(inside_merc_perc_cycle[1],1))
+print(round(inside_merc_cycle[1],1))
 print('max')
-print(round(inside_merc_perc_cycle[2],1))
+print(round(inside_merc_cycle[2],1))
 
 
 print()
 print('Venus +/-')
-print(round(np.nanmean(inside_vex_perc_cycle),1))
-print(round(np.nanstd(inside_vex_perc_cycle),1))
+print(round(np.nanmean(inside_vex_cycle),1))
+print(round(np.nanstd(inside_vex_cycle),1))
 print('min')
-print(round(inside_vex_perc_cycle[0],1))
+print(round(inside_vex_cycle[0],1))
 print('rise')
-print(round(inside_vex_perc_cycle[1],1))
+print(round(inside_vex_cycle[1],1))
 print('max')
-print(round(inside_vex_perc_cycle[2],1))
+print(round(inside_vex_cycle[2],1))
 
 
 print()
 print('Earth +/-')
-print(round(np.nanmean(inside_wind_perc_cycle),1))
-print(round(np.nanstd(inside_wind_perc_cycle),1))
+print(round(np.nanmean(inside_win_cycle),1))
+print(round(np.nanstd(inside_win_cycle),1))
 print('min')
-print(round(inside_wind_perc_cycle[0],1))
+print(round(inside_win_cycle[0],1))
 print('rise')
-print(round(inside_wind_perc_cycle[1],1))
+print(round(inside_win_cycle[1],1))
 print('max')
-print(round(inside_wind_perc_cycle[2],1))
+print(round(inside_win_cycle[2],1))
 
 
 #only declining phase
 print('MAVEN')
-print(round(inside_mav_perc_cycle[1],1))
+print(round(inside_mav_cycle[1],1))
 
 
 
@@ -1944,7 +1693,7 @@ print(np.mean(icme_durations[imavind]))
 
 
 
-
+sys.exit()
 
 
 
@@ -2035,7 +1784,7 @@ cycle_bin_edges=[minstart, minend, riseend, maxend]
 (histmavcyc, bin_edgescyc) = np.histogram(icme_start_time_num[imavind], cycle_bin_edges)
 
 #use total_data_days_vex etc. from previous plot 
-histwincyc=histwincyc/total_data_days_wind_cycle*365
+histwincyc=histwincyc/total_data_days_win_cycle*365
 histvexcyc=histvexcyc/total_data_days_vex_cycle*365
 histmescyc=histmescyc/total_data_days_mes_cycle*365
 histstbcyc=histstbcyc/total_data_days_stb_cycle*365
