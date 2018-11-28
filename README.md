@@ -50,13 +50,10 @@ or in the terminal:
 ## Running the CME statistics code 
 
 * needs sunpy, astropy, seaborn, pickle, urllib, json
-* for a paper in preparation:
+* for a paper in preparation in ipython do:
 
-ipython:
       $ run cme_stats
 
-terminal:      
-      $ python cme_stats.py
 
 * for the poster on CME observations with the Parker Solar Probe, shown at EGU 2018
 * https://doi.org/10.6084/m9.figshare.6110636.v1
