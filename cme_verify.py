@@ -771,7 +771,8 @@ print()
 
 
 ##################### (1) arrival frequencies in ICMECAT and ARRCAT
-
+fsize=10
+matplotlib.rcParams.update({'font.size': fsize})
 
 yearly_bin_edges=[mdates.date2num(sunpy.time.parse_time('2007-01-01')),
                   mdates.date2num(sunpy.time.parse_time('2008-01-01')),
@@ -788,7 +789,7 @@ binweite=360/6
 
 plt.figure(1)
 ax1 = plt.subplot(211) 
-plt.ylabel('Number of ARRCAT impacts HIA/HIB')
+plt.ylabel('Number of ARRCAT impacts HIA/HIB', fontsize=8)
 
 (histwin, bin_edgeswin) = np.histogram(target_arrival_num[arrwinind_all], yearly_bin_edges)
 (histvex, bin_edgesvex) = np.histogram(target_arrival_num[arrvexind_all], yearly_bin_edges)
@@ -808,11 +809,14 @@ ax1.xaxis_date()
 myformat = mdates.DateFormatter('%Y')
 ax1.xaxis.set_major_formatter(myformat)
 
-fsize=15 #same for all elements
+fsize=10 #same for all elements
 
 #panel labels
 plt.figtext(0.03,0.95,'a',color='black', fontsize=fsize, ha='left',fontweight='bold')
 plt.figtext(0.03,0.45,'b',color='black', fontsize=fsize, ha='left',fontweight='bold')
+
+plt.xticks(fontsize=fsize)
+plt.yticks(fontsize=fsize)
 
 #sets planet / spacecraft labels
 xoff=0.15
@@ -825,8 +829,8 @@ plt.figtext(xoff,yoff-0.05*3,'STEREO-A',color='red', fontsize=fsize, ha='left')
 plt.figtext(xoff,yoff-0.05*4,'STEREO-B',color='royalblue', fontsize=fsize, ha='left')
 
 ax2 = plt.subplot(212) 
-plt.ylabel('Number of ICMECAT events')
-plt.xlabel('Year')
+plt.ylabel('Number of ICMECAT events', fontsize=8)
+plt.xlabel('Year', fontsize=fsize)
 (histwin, bin_edgeswin) = np.histogram(icme_start_time_num[iwinind], yearly_bin_edges)
 (histvex, bin_edgesvex) = np.histogram(icme_start_time_num[ivexind], yearly_bin_edges)
 (histmes, bin_edgesmes) = np.histogram(icme_start_time_num[imesind], yearly_bin_edges)
@@ -843,8 +847,12 @@ ax2.xaxis_date()
 myformat = mdates.DateFormatter('%Y')
 ax2.xaxis.set_major_formatter(myformat)
 
+plt.xticks(fontsize=fsize)
+plt.yticks(fontsize=fsize)
+
+
 sns.despine()
-plt.show()
+
 plt.savefig('plots/arrcat_icmecat_frequency_per_year.pdf', dpi=300)
 plt.savefig('plots/arrcat_icmecat_frequency_per_year.png', dpi=300)
 
@@ -900,7 +908,7 @@ binweite=360/6
 
 plt.figure(2)
 ax1 = plt.subplot(211) 
-plt.ylabel('HIA number of hits')
+plt.ylabel('HIA number of hits',fontsize=fsize)
 #these are the correct hits
 (histwin, bin_edgeswin) = np.histogram(win_hit_times_clean_a, yearly_bin_edges)
 #these are all predicted arrivals
@@ -936,7 +944,11 @@ ax1.xaxis_date()
 myformat = mdates.DateFormatter('%Y')
 ax1.xaxis.set_major_formatter(myformat)
 
-fsize=15
+
+plt.xticks(fontsize=fsize)
+plt.yticks(fontsize=fsize)
+
+fsize=10
 xoff=0.15
 yoff=0.87
 
@@ -981,8 +993,8 @@ sta_perc_hit_b=np.size(sta_hit_times_clean_b)/np.size(sta_hit_times_b)*100
 
 
 ax1 = plt.subplot(212) 
-plt.ylabel('HIB number of hits')
-plt.xlabel('Year')
+plt.ylabel('HIB number of hits', fontsize=fsize)
+plt.xlabel('Year', fontsize=fsize)
 (histwin, bin_edgeswin) = np.histogram(win_hit_times_clean_b, yearly_bin_edges)
 (histwin_all, bin_edgeswin) = np.histogram(win_all_pred_times_b, yearly_bin_edges)
 (histvex, bin_edgesvex) = np.histogram(vex_hit_times_clean_b, yearly_bin_edges)
@@ -1016,19 +1028,14 @@ ax1.xaxis_date()
 myformat = mdates.DateFormatter('%Y')
 ax1.xaxis.set_major_formatter(myformat)
 
-fsize=15
+fsize=10
 xoff=0.15
 yoff=0.87
 
 sns.despine()
 
-plt.show()
 plt.savefig('plots/arrcat_icmecat_correct_hits.pdf',  dpi=300)
 plt.savefig('plots/arrcat_icmecat_correct_hits.png', dpi=300)
-
-
-
-
 
 
 
@@ -1042,7 +1049,7 @@ plt.savefig('plots/arrcat_icmecat_correct_hits.png', dpi=300)
 # STEREO separation to Earth is not in ARRCAT, 
 # so plot against time and positions from position file
 
-
+fsize=8
 #histogram for each year of the correct hits
 (histwin_hits, bin_edgeswin) = np.histogram(win_hit_times_clean_a, yearly_bin_edges)
 (histwin_preds, bin_edgeswin) = np.histogram(win_all_pred_times_a, yearly_bin_edges)
@@ -1054,7 +1061,7 @@ yearly_ratio_hib=histwin_hits/histwin_preds*100
 
 plt.figure(3)
 ax1 = plt.subplot(211) 
-plt.ylabel('Correct hits at Earth L1 [%]')
+plt.ylabel('Correct hits at Earth L1 [%]',fontsize=fsize)
 plt.bar(bin_edgeswin[:-1]+30,yearly_ratio_hib, width=100,color='royalblue', alpha=0.7,label='HIB')
 plt.bar(bin_edgeswin[:-1]+160,yearly_ratio_hia, width=100,color='red', alpha=0.7,label='HIA')
 
@@ -1063,19 +1070,21 @@ plt.bar(bin_edgeswin[:-1]+160,yearly_ratio_hia, width=100,color='red', alpha=0.7
 ax1.xaxis_date()
 myformat = mdates.DateFormatter('%Y')
 ax1.xaxis.set_major_formatter(myformat)
-ax1.legend(loc=2, fontsize=15)
+ax1.legend(loc=2, fontsize=fsize)
 plt.xlim(yearly_bin_edges[0],yearly_bin_edges[8])
+plt.xticks(fontsize=fsize)
+plt.yticks(fontsize=fsize)
 
 ax2 = plt.subplot(212) 
-plt.ylabel('HI separation from Earth [deg]')
-plt.xlabel('Year')
+plt.ylabel('HI separation from Earth [deg]',fontsize=fsize)
+plt.xlabel('Year',fontsize=fsize)
 plt.plot_date(pos_time_num,abs(pos['stb'][1]*180/np.pi),'-',color='royalblue',label='HIB',alpha=0.7)
 plt.plot_date(pos_time_num,abs(pos['sta'][1]*180/np.pi),'-',color='red',label='HIA',lw=2,alpha=0.7)
-ax2.legend(loc=2,fontsize=15)
+ax2.legend(loc=2,fontsize=fsize)
 plt.xlim(yearly_bin_edges[0],yearly_bin_edges[8])
 
-plt.figtext(0.03,0.90,'a',color='black', fontsize=fsize, ha='left',fontweight='bold')
-plt.figtext(0.03,0.45,'b',color='black', fontsize=fsize, ha='left',fontweight='bold')
+plt.figtext(0.01,0.90,'a',color='black', fontsize=fsize, ha='left',fontweight='bold')
+plt.figtext(0.01,0.45,'b',color='black', fontsize=fsize, ha='left',fontweight='bold')
 
 
 #check at which index STEREO-B was at closest to L5 at 60° HEEQ longitude from Earth
@@ -1083,8 +1092,9 @@ l5_index=np.argmin(abs(pos['stb'][1]*180/np.pi+60))
 plt.axvline(x=pos_time_num[l5_index], ymin=0, ymax = 180, linewidth=2, color='royalblue')
 plt.figtext(0.4,0.4,'L5', color='royalblue', fontsize=fsize, ha='left')
 
+plt.xticks(fontsize=fsize)
+plt.yticks(fontsize=fsize)
 
-plt.show()
 plt.savefig('plots/correct_hits_time_separation.pdf', dpi=300)
 plt.savefig('plots/correct_hits_time_separation.png', dpi=300)
 
@@ -2001,7 +2011,6 @@ plt.xlabel('$\mathregular{\Delta}$  C-O [hours]', fontsize=fsize)
 sns.despine()
 plt.tight_layout()
 
-plt.show()
 plt.savefig('plots/histogram_arrival_times.pdf', dpi=300)
 plt.savefig('plots/histogram_arrival_times.png', dpi=300)
 
@@ -2076,7 +2085,7 @@ sns.set_context("talk")
 #sns.set_style("darkgrid")  
 sns.set_style("ticks")
 
-fsize=15
+fsize=10
 
 #for labels
 xoff=0.3
@@ -2125,7 +2134,7 @@ plt.figtext(0.50,0.93,'b',color='black', fontsize=fsize, ha='left',fontweight='b
 plt.tight_layout()
 
 
-plt.show() 
+ 
 plt.savefig('plots/histogram_speeds.pdf', dpi=300)
 plt.savefig('plots/histogram_speeds.png', dpi=300)
 
@@ -2292,7 +2301,7 @@ plt.errorbar(tspeed_b[mes_ind_over_b],bmean_b[mes_ind_over_b],xerr=tspeed_b[mes_
 
 
 
-fsize=15
+fsize=10
 plt.yticks(fontsize=fsize) 
 plt.xticks(fontsize=fsize) 
 
@@ -2335,7 +2344,7 @@ plt.errorbar(TT_b[vex_ind_over_b],bmean_b[vex_ind_over_b],xerr=TT_b[vex_ind_over
 plt.errorbar(TT_b[mes_ind_over_b],bmean_b[mes_ind_over_b],xerr=TT_b[mes_ind_over_b]*0.1,yerr=bstd_b[mes_ind_over_b],color='dimgrey', lw=1,capthick=1,markersize=8,fmt='o',alpha=0.9, label='MESSENGER')
 
 
-fsize=15
+fsize=10
 plt.yticks(fontsize=fsize) 
 plt.xticks(fontsize=fsize) 
 
@@ -2353,7 +2362,7 @@ plt.figtext(0.51,0.93,'b',color='black', fontsize=fsize+3, ha='left',fontweight=
 
 plt.tight_layout()
 
-plt.show()
+
 plt.savefig('plots/bmean_traveltime_bmean_speed.png', dpi=300)
 plt.savefig('plots/bmean_traveltime_bmean_speed.pdf', dpi=300)
 
@@ -2655,7 +2664,7 @@ plt.errorbar(TT_b[vex_ind_over_b],bmax_b[vex_ind_over_b],xerr=TT_b[vex_ind_over_
 plt.errorbar(TT_b[mes_ind_over_b],bmax_b[mes_ind_over_b],xerr=TT_b[mes_ind_over_b]*0.1,yerr=0,color='dimgrey', lw=1,capthick=1,markersize=8,fmt='o',alpha=0.9, label='MESSENGER')
 
 
-fsize=15
+fsize=10
 plt.yticks(fontsize=fsize) 
 plt.xticks(fontsize=fsize) 
 
@@ -2669,7 +2678,7 @@ plt.xticks(fontsize=fsize)
 
 plt.tight_layout()
 
-plt.show()
+
 plt.savefig('plots/bmax_traveltime.png', dpi=300)
 plt.savefig('plots/bmax_traveltime.pdf', dpi=300)
 
@@ -2687,7 +2696,7 @@ plt.figure(13)
 plt.errorbar(bzmin_a,paext_a,xerr=0,yerr=0,color='r', lw=1,capthick=1,markersize=8,fmt='o',alpha=0.9)
 plt.errorbar(bzmin_b,paext_b,xerr=0,yerr=0,color='b', lw=1,capthick=1,markersize=8,fmt='o',alpha=0.9)
 
-fsize=15
+fsize=10
 plt.yticks(fontsize=fsize) 
 plt.xticks(fontsize=fsize) 
 
@@ -2701,7 +2710,7 @@ plt.xticks(fontsize=fsize)
 
 plt.tight_layout()
 
-plt.show()
+
 plt.savefig('plots/bzmin_paextent.png', dpi=300)
 plt.savefig('plots/bzmin_paextent.pdf', dpi=300)
 
@@ -2715,7 +2724,7 @@ plt.errorbar(bzmean_a/bmean_a,paext_a,xerr=0,yerr=0,color='r', lw=1,capthick=1,m
 plt.errorbar(bzmean_b/bmean_b,paext_b,xerr=0,yerr=0,color='b', lw=1,capthick=1,markersize=8,fmt='o',alpha=0.9)
 
 
-fsize=15
+fsize=10
 plt.yticks(fontsize=fsize) 
 plt.xticks(fontsize=fsize) 
 
@@ -2730,7 +2739,7 @@ plt.xticks(fontsize=fsize)
 
 plt.tight_layout()
 
-plt.show()
+
 plt.savefig('plots/bzmean_paextent.png', dpi=300)
 plt.savefig('plots/bzmean_paextent.pdf', dpi=300)
 
@@ -2749,7 +2758,7 @@ plt.errorbar(bmean_a,pacenter_a,xerr=0,yerr=0,color='r', lw=1,capthick=1,markers
 plt.errorbar(bmean_b,pacenter_b-180,xerr=0,yerr=0,color='b', lw=1,capthick=1,markersize=8,fmt='o',alpha=0.9)
 
 
-fsize=15
+fsize=10
 plt.yticks(fontsize=fsize) 
 plt.xticks(fontsize=fsize) 
 
@@ -2764,7 +2773,7 @@ plt.xticks(fontsize=fsize)
 
 plt.tight_layout()
 
-plt.show()
+
 plt.savefig('plots/bmean_pacenter.png', dpi=300)
 plt.savefig('plots/bmean_pacenter.pdf', dpi=300)
 

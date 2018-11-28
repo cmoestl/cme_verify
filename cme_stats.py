@@ -6,7 +6,9 @@
 #twitter @chrisoutofspace, https://github.com/cmoestl
 #last update November 2018
 
-#python 3.5.2 with sunpy and seaborn, ipython 4.2.0
+#python 3.5.5 with sunpy, seaborn ipython 4.2.0
+
+#needs file cme_stats_module.py
 
 #current status:
 #work in progress
@@ -20,12 +22,17 @@ import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import numpy as np
+import astropy.constants as const
 import sunpy.time
 import time
 import pickle
 import seaborn as sns
 import os
 import urllib
+import json
+
+
+
 
 import cme_stats_module
 from cme_stats_module import dynamic_pressure
@@ -45,6 +52,29 @@ from cme_stats_module import load_url_current_directory
 #plt.show(block=True)
 
 
+#CHECK for MAVEN program  for MARS EVENTS at MAVEN -> HI / MSL LIST FOR VERIFICATION
+
+#url_hicat='https://www.helcats-fp7.eu/catalogues/data/HCME_WP3_V05.json'
+#download, see URLLIB https://docs.python.org/3/howto/urllib2.html
+#with urllib.request.urlopen(url_plasma) as url:
+#   pr = json.loads	(url.read().decode())
+#hicat_file='cats/HCME_WP3_V05.json'
+#h = json.loads(open(hicat_file).read())
+##kill first row which stems from the description part
+#hmf_speed=np.zeros(len(h['data']))
+#fpf_speed=np.zeros(len(h['data']))
+#for k in np.arange(0,len(h['data']),1):
+#  hmf_speed[k]=h['data'][k][25]
+#  fpf_speed[k]=h['data'][k][9]
+
+#for line in open('cats/MSL_event_table_forstner_2019.txt'):
+   #line = line.split() # to deal with blank 
+#   print(line)
+   
+#http://docs.astropy.org/en/stable/io/ascii/
+#alternative
+#from astropy.io import ascii
+#data = ascii.read('cats/MSL_event_table_forstner_2019.txt')  
 
 ##########################################################################################
 ######################################## MAIN PROGRAM ####################################
@@ -64,12 +94,7 @@ print('Christian Moestl, IWF Graz, Austria, last update: November 2018.')
 
 
 #solar radius
-Rs_in_AU=7e5/149.5e6
-
-
-
-
-
+Rs_in_AU=float(const.R_sun/const.au)
 
 
 filename_icmecat='cats/HELCATS_ICMECAT_v20_SCEQ.sav'

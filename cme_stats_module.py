@@ -1,7 +1,7 @@
 #cme_stats_module.py
 
 
-#This is the module for the predstorm package containing functions and procedures
+#This is the module for the cme_verify repo containing functions and procedures
 
 import numpy as np
 import scipy
@@ -22,16 +22,18 @@ import pdb
 
 #set breakpoints with pdb.set_trace
 
+
+
 # LIST OF FUNCTIONS
+
+# load_url_current_directory
 # getpositions
-# ..................
-
-
-
-
-
-
-
+# getcat
+# gaussian
+# dynamic_pressure
+# decode_array
+# time_to_num_cat
+# get_omni2_data
 
 
 def load_url_current_directory(filename,url):

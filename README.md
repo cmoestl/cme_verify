@@ -10,12 +10,12 @@ The code cme_verify.py was used for producing the figures and results in the pub
 Möstl et al. (2017) https://arxiv.org/abs/1703.00705 
 http://cdsads.u-strasbg.fr/abs/2017SpWea..15..955M
 
-On CME statistics, the code cme_stats.py is used, and a paper is in preparation.
+On CME statistics, the code cme_stats.py is used, and a paper is in preparation (early 2019).
 
 ## Dependencies
 * The code is written in python, and I run it over the command line in MAC OS X (High Sierra) in ipython.
 
-* Install python anaconda (v3 or up, I use 3.5.2).
+* Install python anaconda (v3 or up, I use 3.5.5).
 
 https://www.anaconda.com/download/#macos
 
@@ -41,12 +41,22 @@ Start ipython and run the code file:
 
       $ ipython
       
-      $ run cme_verify.py
+      $ run cme_verify
+
+or in the terminal:
+
+      $ python cme_verify.py     
   
 ## Running the CME statistics code 
-* for the paper in preparation:
 
-      $ run cme_stats.py
+* needs sunpy, astropy, seaborn, pickle, urllib, json
+* for a paper in preparation:
+
+ipython:
+      $ run cme_stats
+
+terminal:      
+      $ python cme_stats.py
 
 * for the poster on CME observations with the Parker Solar Probe, shown at EGU 2018
 * https://doi.org/10.6084/m9.figshare.6110636.v1
